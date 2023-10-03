@@ -159,7 +159,6 @@ export default function AddAttachment({
                   className="rounded-md bg-white px-1.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                   type="button"
                   onClick={() => {
-                    console.log("delete con");
                     setFormData(
                       produce(formData, (draft) => {
                         draft.characteristics.cons.splice(i, 1);

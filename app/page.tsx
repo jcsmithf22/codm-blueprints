@@ -46,8 +46,6 @@ export default async function Index({
 }) {
   const supabase = createServerComponentClient({ cookies });
 
-  console.log(searchParams.error);
-
   const {
     data: { user },
   } = await supabase.auth.getUser();

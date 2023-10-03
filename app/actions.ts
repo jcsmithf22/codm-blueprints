@@ -10,7 +10,6 @@ import { redirect } from "next/navigation";
 export async function addAttachment(filteredState: Attachment) {
   const supabase = createServerActionClient<Database>({ cookies });
   const { error } = await supabase.from("attachments").insert([filteredState]);
-  console.log(error);
   if (!error) {
     revalidatePath("/dashboard/attachments");
     redirect("/dashboard/attachments");
