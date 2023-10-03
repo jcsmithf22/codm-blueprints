@@ -3,17 +3,26 @@ import Sidebar from "@/components/Sidebar";
 import { Database } from "@/types/supabase";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import { getItems, getItem } from "@/utils/functions";
+import { Attachment, AttachmentName, Model } from "@/types/types";
 
 export default async function Edit({ params }: { params: { id: string } }) {
   const supabase = createServerComponentClient<Database>({ cookies });
-  const { data: attachment } = await supabase
-    .from("attachments")
-    .select()
-    .eq("id", params.id);
-  const { data: attachment_names } = await supabase
-    .from("attachment_names")
-    .select();
-  const { data: models } = await supabase.from("models").select();
+  const attachmentData = getItem<Attachment>(
+    supabase,
+    "attachments",
+    params.id
+  );
+  const attachmentNamesData = getItems<AttachmentName>(
+    supabase,
+    "attachment_names"
+  );
+  const modelsData = getItems<Model>(supabase, "models");
+  const [attachment, attachment_names, models] = await Promise.all([
+    attachmentData,
+    attachmentNamesData,
+    modelsData,
+  ]);
   return (
     <Sidebar>
       {attachment && attachment_names && models && (

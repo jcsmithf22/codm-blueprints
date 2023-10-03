@@ -4,6 +4,8 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { Database } from "@/types/supabase";
 import Link from "next/link";
+import { getItems } from "@/utils/functions";
+import { AttachmentName } from "@/types/types";
 
 export default async function ServerComponent() {
   // Create a Supabase client configured to use cookies
@@ -12,7 +14,8 @@ export default async function ServerComponent() {
   // This assumes you have a `todos` table in Supabase. Check out
   // the `Create Table and seed with data` section of the README 👇
   // https://github.com/vercel/next.js/blob/canary/examples/with-supabase/README.md
-  const { data: types } = await supabase.from("attachment_names").select();
+  // const { data: types } = await supabase.from("attachment_names").select();
+  const types = await getItems<AttachmentName>(supabase, "attachment_names");
 
   return (
     <div className="bg-gray-100 pt-8 min-h-screen">

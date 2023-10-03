@@ -3,8 +3,10 @@
 import React from "react";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import { Database } from "@/types/supabase";
+import { getItems } from "@/utils/functions";
 import Link from "next/link";
+import { Attachment, Model, AttachmentName } from "@/types/types";
+import { Database } from "@/types/supabase";
 
 export default async function ServerComponent() {
   // Create a Supabase client configured to use cookies
@@ -13,11 +15,18 @@ export default async function ServerComponent() {
   // This assumes you have a `todos` table in Supabase. Check out
   // the `Create Table and seed with data` section of the README 👇
   // https://github.com/vercel/next.js/blob/canary/examples/with-supabase/README.md
-  const { data: models } = await supabase.from("models").select();
-  const { data: attachments } = await supabase.from("attachments").select();
-  const { data: attachment_names } = await supabase
-    .from("attachment_names")
-    .select();
+  const modelsData = getItems<Model>(supabase, "models");
+  const attachmentsData = getItems<Attachment>(supabase, "attachments");
+  const attachmentNamesData = getItems<AttachmentName>(
+    supabase,
+    "attachment_names"
+  );
+
+  const [models, attachments, attachment_names] = await Promise.all([
+    modelsData,
+    attachmentsData,
+    attachmentNamesData,
+  ]);
 
   return (
     <div className="bg-gray-100 pt-8 min-h-screen">
