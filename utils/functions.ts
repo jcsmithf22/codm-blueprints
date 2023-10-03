@@ -1,11 +1,12 @@
 import { Database } from "@/types/supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { cache } from "react";
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export async function getItem<T>(
+export const getItem = cache(async function getItem<T>(
   supabase: SupabaseClient<Database>,
   table: string,
   id: string
@@ -14,9 +15,9 @@ export async function getItem<T>(
     data: T[];
   };
   return item;
-}
+});
 
-export async function getItems<T>(
+export const getItems = cache(async function getItems<T>(
   supabase: SupabaseClient<Database>,
   table: string
 ) {
@@ -24,4 +25,4 @@ export async function getItems<T>(
     data: T[];
   };
   return items;
-}
+});
