@@ -27,6 +27,8 @@ export default async function ServerComponent() {
     attachmentNamesData,
   ]);
 
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
+
   //  attachments of the type Attachment[]
 
   // return <div className="">test</div>;
