@@ -17,14 +17,14 @@ export default async function ServerLayout(props: {
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (!session) {
-    // this is a protected route - only users who are signed in can view this route
-    redirect("/login/?error=must-be-signed-in");
-  }
+  // if (!session) {
+  //   // this is a protected route - only users who are signed in can view this route
+  //   redirect("/login/?error=must-be-signed-in");
+  // }
 
-  if (session.user.id !== process.env.PRIVATE_ROOT_UID) {
-    redirect("/?error=unauthorized");
-  }
+  // if (session.user.id !== process.env.PRIVATE_ROOT_UID) {
+  //   redirect("/?error=unauthorized");
+  // }
 
   return (
     <Providers>
