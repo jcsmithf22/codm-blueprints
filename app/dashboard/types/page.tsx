@@ -10,6 +10,8 @@ import { Suspense } from "react";
 import LoadingTable from "@/components/LoadingTable";
 import TypeRows from "@/components/table/TypeRows";
 
+export const revalidate = 0;
+
 export default function ServerComponent() {
   // return <pre>{JSON.stringify(attachments, null, 2)}</pre>;
   return (
