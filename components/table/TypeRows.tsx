@@ -6,70 +6,72 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useEffect } from "react";
 import { Database } from "@/types/supabase";
 import Link from "next/link";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { getItems } from "@/utils/functions";
 
-export default function TypeRows({
-  serverData,
-}: {
-  serverData: AttachmentName[];
-}) {
+export default function TypeRows() {
   const supabase = createClientComponentClient<Database>();
-  const [types, setTypes] = React.useState(serverData);
+  const { data: types } = useQuery({
+    queryKey: ["types"],
+    queryFn: () => getItems<AttachmentName>(supabase, "attachment_names"),
+  });
+  // const [types, setTypes] = React.useState(serverData);
 
-  useEffect(() => {
-    setTypes(serverData);
-  }, [serverData]);
+  // useEffect(() => {
+  //   setTypes(serverData);
+  // }, [serverData]);
 
-  useEffect(() => {
-    const attachmentNames = supabase
-      .channel("custom-all-channel")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "attachment_names" },
-        (payload) => {
-          console.log("insert");
-          const newPayload = payload.new as AttachmentName;
-          setTypes((types) => [...types, newPayload]);
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "attachment_names" },
-        (payload) => {
-          console.log("update");
-          const newPayload = payload.new as AttachmentName;
-          setTypes((types) =>
-            types.map((type) => {
-              if (type.id === newPayload.id) {
-                return newPayload;
-              }
-              return type;
-            })
-          );
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "attachment_names" },
-        (payload) => {
-          console.log("delete");
-          const oldPayload = payload.old as AttachmentName;
-          setTypes((types) =>
-            types.filter((type) => type.id !== oldPayload.id)
-          );
-        }
-      )
-      .subscribe();
+  // useEffect(() => {
+  //   const attachmentNames = supabase
+  //     .channel("custom-all-channel")
+  //     .on(
+  //       "postgres_changes",
+  //       { event: "INSERT", schema: "public", table: "attachment_names" },
+  //       (payload) => {
+  //         console.log("insert");
+  //         const newPayload = payload.new as AttachmentName;
+  //         setTypes((types) => [...types, newPayload]);
+  //       }
+  //     )
+  //     .on(
+  //       "postgres_changes",
+  //       { event: "UPDATE", schema: "public", table: "attachment_names" },
+  //       (payload) => {
+  //         console.log("update");
+  //         const newPayload = payload.new as AttachmentName;
+  //         setTypes((types) =>
+  //           types.map((type) => {
+  //             if (type.id === newPayload.id) {
+  //               return newPayload;
+  //             }
+  //             return type;
+  //           })
+  //         );
+  //       }
+  //     )
+  //     .on(
+  //       "postgres_changes",
+  //       { event: "DELETE", schema: "public", table: "attachment_names" },
+  //       (payload) => {
+  //         console.log("delete");
+  //         const oldPayload = payload.old as AttachmentName;
+  //         setTypes((types) =>
+  //           types.filter((type) => type.id !== oldPayload.id)
+  //         );
+  //       }
+  //     )
+  //     .subscribe();
 
-    return () => {
-      supabase.removeChannel(attachmentNames);
-    };
-  }, [serverData]);
+  //   return () => {
+  //     supabase.removeChannel(attachmentNames);
+  //   };
+  // }, [serverData]);
   // return <pre>{JSON.stringify(serverData, null, 2)}</pre>;
 
   {
     return (
       <>
-        {types.map((type) => (
+        {types?.map((type) => (
           <tr key={type.id}>
             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
               {type.id}

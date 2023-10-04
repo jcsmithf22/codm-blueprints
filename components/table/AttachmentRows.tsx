@@ -5,7 +5,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useEffect } from "react";
 import { Database } from "@/types/supabase";
 import Link from "next/link";
-import { JoinedAttachment } from "@/app/dashboard/attachments/page";
+import { JoinedAttachment } from "@/types/types";
 import { Attachment } from "@/types/types";
 
 export default function AttachmentRows({

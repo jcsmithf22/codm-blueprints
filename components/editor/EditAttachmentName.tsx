@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
-import { updateAttachmentName } from "@/app/actions";
 import type { AttachmentName } from "@/types/types";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@/types/supabase";
-import { classNames } from "@/utils/functions";
+import { classNames, deleteItem, getItem, updateItem } from "@/utils/functions";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
 export default function EditAttachmentName({
   attachmentId,
@@ -13,47 +13,69 @@ export default function EditAttachmentName({
   attachmentId: string;
 }) {
   const supabase = createClientComponentClient<Database>();
-  const [error, setError] = React.useState<string | null>(null);
-  const [formData, setFormData] = React.useState<AttachmentName | null>(null);
+
+  const { data: type } = useQuery({
+    queryKey: ["types", attachmentId],
+    queryFn: () =>
+      getItem<AttachmentName>(supabase, "attachment_names", attachmentId),
+  });
+
+  const [formData, setFormData] = React.useState<AttachmentName | undefined>(
+    type
+  );
   const id = React.useId();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   React.useEffect(() => {
-    const getAttachmentName = async () => {
-      const { data, error } = await supabase
-        .from("attachment_names")
-        .select()
-        .eq("id", attachmentId)
-        .single();
-      if (!error) {
-        setFormData(data);
-      }
-    };
-    getAttachmentName();
-  }, []);
+    setFormData(type);
+  }, [type]);
 
-  const handleSubmit = async () => {
-    // const error = await updateAttachmentName(formData, attachmentId);
-    if (!formData) return;
-    const { error } = await supabase
-      .from("attachment_names")
-      .update(formData)
-      .eq("id", attachmentId);
-    if (!error) {
-      // router.refresh();
+  const updateMutation = useMutation({
+    mutationFn: (updatedData: AttachmentName) => {
+      return updateItem<AttachmentName>(
+        supabase,
+        "attachment_names",
+        attachmentId,
+        updatedData
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["types"] });
       router.back();
-    }
-    console.log(error);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => {
+      // await supabase.from("attachment_names").delete().eq("id", attachmentId);
+      return deleteItem(supabase, "attachment_names", attachmentId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["types"] });
+      router.back();
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const handleSubmit = () => {
+    if (!formData) return;
+    updateMutation.mutate(formData);
   };
 
-  const handleDelete = async () => {
-    const { error } = await supabase
-      .from("attachment_names")
-      .delete()
-      .eq("id", attachmentId);
-    if (!error) {
-      router.back();
-    }
+  const handleDelete = () => {
+    deleteMutation.mutate();
+    // const { data, error } = await deleteItem(
+    //   supabase,
+    //   "attachment_names",
+    //   attachmentId
+    // );
+    // console.log(data, error);
   };
 
   return (

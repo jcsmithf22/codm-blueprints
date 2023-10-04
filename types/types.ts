@@ -21,3 +21,15 @@ export type AttachmentName = {
   name: string;
   type: string;
 };
+
+export type JoinedAttachment = {
+  id: number;
+  attachment_names: {
+    name: string;
+    type: string;
+  } | null;
+  models: {
+    name: string;
+  } | null;
+  characteristics: Characteristics;
+};

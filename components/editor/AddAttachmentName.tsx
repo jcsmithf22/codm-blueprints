@@ -4,28 +4,36 @@ import type { AttachmentName } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@/types/supabase";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
 export default function AddAttachmentName() {
   const supabase = createClientComponentClient<Database>();
-  const [error, setError] = React.useState<string | null>(null);
   const [formData, setFormData] = React.useState<AttachmentName>({
     type: "muzzle",
     name: "",
   });
   const id = React.useId();
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const newMutation = useMutation({
+    mutationFn: async (newData: AttachmentName) => {
+      await supabase.from("attachment_names").insert([newData]).throwOnError();
+      return;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["types"] });
+      router.back();
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   const handleSubmit = async () => {
-    const { error } = await supabase
-      .from("attachment_names")
-      .insert([formData])
-      .select();
-    if (!error) {
-      // router.refresh();
-      router.back();
-    }
-    console.log(error);
+    newMutation.mutate(formData);
   };
+
   return (
     <form action={handleSubmit} className="">
       <h2 className="text-base font-semibold leading-7 text-gray-900">
