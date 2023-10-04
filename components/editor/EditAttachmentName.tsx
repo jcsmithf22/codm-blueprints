@@ -55,7 +55,7 @@ export default function EditAttachmentName({
       return deleteItem(supabase, "attachment_names", attachmentId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["types"] });
+      queryClient.invalidateQueries({ queryKey: ["types"], exact: true });
       router.back();
     },
     onError: (error) => {
@@ -70,12 +70,6 @@ export default function EditAttachmentName({
 
   const handleDelete = () => {
     deleteMutation.mutate();
-    // const { data, error } = await deleteItem(
-    //   supabase,
-    //   "attachment_names",
-    //   attachmentId
-    // );
-    // console.log(data, error);
   };
 
   return (

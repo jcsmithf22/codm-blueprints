@@ -10,6 +10,7 @@
     "@supabase/auth-helpers-nextjs": "latest",
     "@supabase/supabase-js": "latest",
     "@tanstack/react-query": "5.0.0-rc.4",
+    "@tanstack/react-query-devtools": "5.0.0-rc.4",
     "autoprefixer": "10.4.15",
     "immer": "^10.0.3",
     "next": "latest",

@@ -62,3 +62,26 @@ export async function deleteItem<T>(
     .throwOnError();
   return { data, error };
 }
+
+export async function getAttachments(supabase: SupabaseClient<Database>) {
+  const { data: attachments, error } = await supabase
+    .from("attachments")
+    .select(
+      `id, attachment_names (name, type), models (id, name), characteristics`
+    )
+    .order("id")
+    .throwOnError();
+  return attachments;
+}
+
+export async function insertItem<T>(
+  supabase: SupabaseClient<Database>,
+  table: string,
+  item: T
+) {
+  const { data, error } = await supabase
+    .from(table)
+    .insert([item])
+    .throwOnError();
+  return { data, error };
+}

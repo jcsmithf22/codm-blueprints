@@ -1,13 +1,13 @@
 "use client";
-import React, { ReactEventHandler } from "react";
+import React from "react";
 import { produce } from "immer";
-import { updateAttachment } from "@/app/actions";
 import type { Attachment, AttachmentName, Model } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { NameSelect, ModelSelect } from "./attachments/Select";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@/types/supabase";
-import { getItems, getItem } from "@/utils/functions";
+import { getItems, getItem, updateItem, deleteItem } from "@/utils/functions";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
 export default function EditAttachment({
   attachmentId,
@@ -15,38 +15,60 @@ export default function EditAttachment({
   attachmentId: string;
 }) {
   const supabase = createClientComponentClient<Database>();
-  const [error, setError] = React.useState<string | null>(null);
-  const [formData, setFormData] = React.useState<Attachment | null>(null);
-  const [models, setModels] = React.useState<Model[] | null>(null);
-  const [attachment_names, setAttachmentNames] = React.useState<
-    AttachmentName[] | null
-  >(null);
+  const { data: attachment } = useQuery({
+    queryKey: ["attachments", attachmentId],
+    queryFn: () => getItem<Attachment>(supabase, "attachments", attachmentId),
+  });
+  const { data: models } = useQuery({
+    queryKey: ["models"],
+    queryFn: () => getItems<Model>(supabase, "models"),
+  });
+  const { data: attachment_names } = useQuery({
+    queryKey: ["types"],
+    queryFn: () => getItems<AttachmentName>(supabase, "attachment_names"),
+  });
+  const [formData, setFormData] = React.useState<Attachment | undefined>(
+    attachment
+  );
   const id = React.useId();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   React.useEffect(() => {
-    const getData = async () => {
-      const modelPromise = getItems<Model>(supabase, "models");
-      const attachmentNamePromise = getItems<AttachmentName>(
-        supabase,
-        "attachment_names"
-      );
-      const attachmentPromise = getItem<Attachment>(
+    setFormData(attachment);
+  }, [attachment]);
+
+  const updateMutation = useMutation({
+    mutationFn: (updatedData: Attachment) => {
+      return updateItem<Attachment>(
         supabase,
         "attachments",
-        attachmentId
+        attachmentId,
+        updatedData
       );
-      const [models, attachment_names, attachment] = await Promise.all([
-        modelPromise,
-        attachmentNamePromise,
-        attachmentPromise,
-      ]);
-      setModels(models);
-      setAttachmentNames(attachment_names);
-      setFormData(attachment);
-    };
-    getData();
-  }, []);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attachments"] });
+      router.back();
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => {
+      // await supabase.from("attachment_names").delete().eq("id", attachmentId);
+      return deleteItem(supabase, "attachments", attachmentId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attachments"], exact: true });
+      router.back();
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   const handleSubmit = async () => {
     if (!formData) return;
@@ -59,18 +81,16 @@ export default function EditAttachment({
       );
     });
 
-    const { error } = await supabase
-      .from("attachments")
-      .update(filteredState)
-      .eq("id", attachmentId);
-    if (!error) {
-      router.back();
-    }
+    updateMutation.mutate(filteredState);
+  };
+
+  const handleDelete = async () => {
+    deleteMutation.mutate();
   };
 
   const setName = React.useCallback((name: string) => {
     setFormData((formData) => {
-      if (!formData) return null;
+      if (!formData) return undefined;
       return {
         ...formData,
         type: parseInt(name),
@@ -80,7 +100,7 @@ export default function EditAttachment({
 
   const setModel = React.useCallback((model: string) => {
     setFormData((formData) => {
-      if (!formData) return null;
+      if (!formData) return undefined;
       return {
         ...formData,
         model: parseInt(model),
@@ -248,6 +268,13 @@ export default function EditAttachment({
         </div>
       </div>
       <div className="mt-6 flex items-center justify-end gap-x-6">
+        <button
+          type="button"
+          className="text-sm font-semibold leading-6 text-gray-900"
+          onClick={handleDelete}
+        >
+          Delete
+        </button>
         <button
           type="button"
           className="text-sm font-semibold leading-6 text-gray-900"

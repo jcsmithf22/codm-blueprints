@@ -59,6 +59,12 @@ export default async function Index({
             <div className="flex items-center gap-4">
               Hey, {user.email}!
               <LogoutButton />
+              <Link
+                href="/dashboard"
+                className="py-2 px-3 flex rounded-md no-underline bg-btn-background hover:bg-btn-background-hover"
+              >
+                Dashboard
+              </Link>
             </div>
           ) : (
             <Link

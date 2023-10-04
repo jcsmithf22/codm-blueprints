@@ -6,15 +6,19 @@ import { useRouter } from "next/navigation";
 import { NameSelect, ModelSelect } from "./attachments/Select";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@/types/supabase";
-import { getItems } from "@/utils/functions";
+import { getItems, insertItem } from "@/utils/functions";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
 export default function AddAttachment() {
   const supabase = createClientComponentClient<Database>();
-  const [error, setError] = React.useState<string | null>(null);
-  const [models, setModels] = React.useState<Model[] | null>(null);
-  const [attachment_names, setAttachmentNames] = React.useState<
-    AttachmentName[] | null
-  >(null);
+  const { data: models } = useQuery({
+    queryKey: ["models"],
+    queryFn: () => getItems<Model>(supabase, "models"),
+  });
+  const { data: attachment_names } = useQuery({
+    queryKey: ["types"],
+    queryFn: () => getItems<AttachmentName>(supabase, "attachment_names"),
+  });
   const [formData, setFormData] = React.useState<Attachment>({
     type: -1,
     model: -1,
@@ -25,23 +29,20 @@ export default function AddAttachment() {
   });
   const id = React.useId();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  React.useEffect(() => {
-    const getData = async () => {
-      const modelPromise = getItems<Model>(supabase, "models");
-      const attachmentNamePromise = getItems<AttachmentName>(
-        supabase,
-        "attachment_names"
-      );
-      const [models, attachment_names] = await Promise.all([
-        modelPromise,
-        attachmentNamePromise,
-      ]);
-      setModels(models);
-      setAttachmentNames(attachment_names);
-    };
-    getData();
-  }, []);
+  const newMutation = useMutation({
+    mutationFn: (newData: Attachment) => {
+      return insertItem<Attachment>(supabase, "attachments", newData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attachments"] });
+      router.back();
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   const handleSubmit = async () => {
     const filteredState = produce(formData, (draft) => {
@@ -53,15 +54,7 @@ export default function AddAttachment() {
       );
     });
 
-    const { error } = await supabase
-      .from("attachments")
-      .insert([filteredState]);
-    // const error = await addAttachment(filteredState);
-    if (!error) {
-      // router.push("/dashboard/attachments");
-      router.back();
-    }
-    console.log(error);
+    newMutation.mutate(filteredState);
   };
 
   const setName = React.useCallback((name: string) => {

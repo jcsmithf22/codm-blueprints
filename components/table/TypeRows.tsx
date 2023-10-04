@@ -3,10 +3,9 @@ import React from "react";
 import { AttachmentName } from "@/types/types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-import { useEffect } from "react";
 import { Database } from "@/types/supabase";
 import Link from "next/link";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getItems } from "@/utils/functions";
 
 export default function TypeRows() {
@@ -15,58 +14,6 @@ export default function TypeRows() {
     queryKey: ["types"],
     queryFn: () => getItems<AttachmentName>(supabase, "attachment_names"),
   });
-  // const [types, setTypes] = React.useState(serverData);
-
-  // useEffect(() => {
-  //   setTypes(serverData);
-  // }, [serverData]);
-
-  // useEffect(() => {
-  //   const attachmentNames = supabase
-  //     .channel("custom-all-channel")
-  //     .on(
-  //       "postgres_changes",
-  //       { event: "INSERT", schema: "public", table: "attachment_names" },
-  //       (payload) => {
-  //         console.log("insert");
-  //         const newPayload = payload.new as AttachmentName;
-  //         setTypes((types) => [...types, newPayload]);
-  //       }
-  //     )
-  //     .on(
-  //       "postgres_changes",
-  //       { event: "UPDATE", schema: "public", table: "attachment_names" },
-  //       (payload) => {
-  //         console.log("update");
-  //         const newPayload = payload.new as AttachmentName;
-  //         setTypes((types) =>
-  //           types.map((type) => {
-  //             if (type.id === newPayload.id) {
-  //               return newPayload;
-  //             }
-  //             return type;
-  //           })
-  //         );
-  //       }
-  //     )
-  //     .on(
-  //       "postgres_changes",
-  //       { event: "DELETE", schema: "public", table: "attachment_names" },
-  //       (payload) => {
-  //         console.log("delete");
-  //         const oldPayload = payload.old as AttachmentName;
-  //         setTypes((types) =>
-  //           types.filter((type) => type.id !== oldPayload.id)
-  //         );
-  //       }
-  //     )
-  //     .subscribe();
-
-  //   return () => {
-  //     supabase.removeChannel(attachmentNames);
-  //   };
-  // }, [serverData]);
-  // return <pre>{JSON.stringify(serverData, null, 2)}</pre>;
 
   {
     return (

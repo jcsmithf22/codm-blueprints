@@ -1,34 +1,37 @@
 "use client";
 import React from "react";
-import { produce } from "immer";
-import { addModel } from "@/app/actions";
 import type { Model } from "@/types/types";
 import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Database } from "@/types/supabase";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { insertItem } from "@/utils/functions";
 
 export default function AddModel() {
-  const [error, setError] = React.useState<string | null>(null);
+  const supabase = createClientComponentClient<Database>();
   const [formData, setFormData] = React.useState<Model>({
     name: "",
     type: "assault",
   });
   const id = React.useId();
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const newMutation = useMutation({
+    mutationFn: (newData: Model) => {
+      return insertItem(supabase, "models", newData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["models"] });
+      router.back();
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   const handleSubmit = async () => {
-    // const filteredState = produce(formData, (draft) => {
-    //   // delete name if empty
-    //   if (draft.name === "") {
-    //     delete draft["name" as keyof typeof draft];
-    //   }
-
-    // });
-
-    const error = await addModel(formData);
-    if (!error) {
-      router.refresh();
-      router.back();
-    }
-    console.log(error);
+    newMutation.mutate(formData);
   };
   return (
     <form action={handleSubmit} className="">

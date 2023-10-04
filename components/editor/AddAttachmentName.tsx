@@ -4,7 +4,8 @@ import type { AttachmentName } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@/types/supabase";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { insertItem } from "@/utils/functions";
 
 export default function AddAttachmentName() {
   const supabase = createClientComponentClient<Database>();
@@ -17,9 +18,8 @@ export default function AddAttachmentName() {
   const queryClient = useQueryClient();
 
   const newMutation = useMutation({
-    mutationFn: async (newData: AttachmentName) => {
-      await supabase.from("attachment_names").insert([newData]).throwOnError();
-      return;
+    mutationFn: (newData: AttachmentName) => {
+      return insertItem(supabase, "attachment_names", newData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["types"] });

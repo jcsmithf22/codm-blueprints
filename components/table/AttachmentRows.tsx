@@ -2,88 +2,17 @@
 import React from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-import { useEffect } from "react";
 import { Database } from "@/types/supabase";
 import Link from "next/link";
-import { JoinedAttachment } from "@/types/types";
-import { Attachment } from "@/types/types";
+import { useQuery } from "@tanstack/react-query";
+import { getAttachments } from "@/utils/functions";
 
-export default function AttachmentRows({
-  serverData,
-}: {
-  serverData: JoinedAttachment[];
-}) {
+export default function AttachmentRows() {
   const supabase = createClientComponentClient<Database>();
-  const [attachments, setAttachments] = React.useState(serverData);
-
-  useEffect(() => {
-    setAttachments(serverData);
-  }, [serverData]);
-
-  useEffect(() => {
-    const attachmentsChannel = supabase
-      .channel("custom-all-channel")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "attachments" },
-        async (payload) => {
-          console.log("insert");
-          const newPayload = payload.new as Attachment;
-          const { data: joinedData } = await supabase
-            .from("attachments")
-            .select(`attachment_names (name, type), models (name)`)
-            .eq("id", newPayload.id!)
-            .single();
-          const joinedPayload = {
-            ...newPayload,
-            ...joinedData,
-          } as JoinedAttachment;
-          setAttachments((attachment) => [...attachment, joinedPayload]);
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "attachments" },
-        async (payload) => {
-          console.log("update");
-          const newPayload = payload.new as JoinedAttachment;
-          const { data: joinedData } = await supabase
-            .from("attachments")
-            .select(`attachment_names (name, type), models (name)`)
-            .eq("id", newPayload.id!)
-            .single();
-          const joinedPayload = {
-            ...newPayload,
-            ...joinedData,
-          } as JoinedAttachment;
-          setAttachments((types) =>
-            types.map((type) => {
-              if (type.id === newPayload.id) {
-                return joinedPayload;
-              }
-              return type;
-            })
-          );
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "attachments" },
-        (payload) => {
-          console.log("delete");
-          const oldPayload = payload.old as JoinedAttachment;
-          setAttachments((types) =>
-            types.filter((type) => type.id !== oldPayload.id)
-          );
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(attachmentsChannel);
-    };
-  }, [serverData]);
-  // return <pre>{JSON.stringify(serverData, null, 2)}</pre>;
+  const { data: attachments } = useQuery({
+    queryKey: ["attachments"],
+    queryFn: () => getAttachments(supabase),
+  });
 
   {
     return (

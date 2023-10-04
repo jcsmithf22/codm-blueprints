@@ -26,16 +26,16 @@ type Navigation = {
 };
 
 const navigation: Navigation[] = [
-  // {
-  //   name: "Models",
-  //   href: "/dashboard/models",
-  //   icon: FolderIcon,
-  // },
-  // {
-  //   name: "Attachments",
-  //   href: "/dashboard/attachments",
-  //   icon: PuzzlePieceIcon,
-  // },
+  {
+    name: "Attachments",
+    href: "/dashboard/attachments",
+    icon: PuzzlePieceIcon,
+  },
+  {
+    name: "Models",
+    href: "/dashboard/models",
+    icon: FolderIcon,
+  },
   {
     name: "Types",
     href: "/dashboard/types",
