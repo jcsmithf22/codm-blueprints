@@ -28,6 +28,7 @@ export default function EditModel({
 
     const error = await updateModel(formData, modelId);
     if (!error) {
+      router.refresh();
       router.back();
     }
     console.log(error);

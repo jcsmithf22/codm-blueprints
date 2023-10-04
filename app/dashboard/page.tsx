@@ -2,8 +2,15 @@
 
 import { redirect } from "next/navigation";
 
-export default async function Dashboard() {
+export default async function Dashboard({
+  searchParams,
+}: {
+  searchParams: { page: string };
+}) {
+  const { page } = searchParams;
   // Create a Supabase client configured to use cookies
   // return <pre>{JSON.stringify(attachments, null, 2)}</pre>;
-  redirect("/dashboard/models");
+  if (!page) redirect("/dashboard/models");
+
+  redirect(`/dashboard/${page}`);
 }

@@ -4,28 +4,63 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { Database } from "@/types/supabase";
 import Link from "next/link";
-import { getItems } from "@/utils/functions";
-import { Attachment, AttachmentName, Model } from "@/types/types";
+import { Suspense } from "react";
+import LoadingTable from "@/components/LoadingTable";
+import { Characteristics } from "@/types/types";
+import AttachmentRows from "@/components/table/AttachmentRows";
 
-export default async function ServerComponent() {
+export default function AttachmentsPage() {
   // Create a Supabase client configured to use cookies
+
+  // return <pre>{JSON.stringify(attachments, null, 2)}</pre>;
+  return (
+    <Suspense
+      fallback={
+        <LoadingTable title="Attachments">
+          A list of all attachments in the database.
+        </LoadingTable>
+      }
+    >
+      <Table />
+    </Suspense>
+  );
+}
+
+export type JoinedAttachment = {
+  id: number;
+  attachment_names: {
+    name: string;
+    type: string;
+  } | null;
+  models: {
+    name: string;
+  } | null;
+  characteristics: Characteristics;
+};
+
+async function Table() {
   const supabase = createServerComponentClient<Database>({ cookies });
 
   // This assumes you have a `todos` table in Supabase. Check out
   // the `Create Table and seed with data` section of the README 👇
   // https://github.com/vercel/next.js/blob/canary/examples/with-supabase/README.md
   // const { data: attachments } = await supabase.from("attachments").select();
-  const attachmentsData = getItems<Attachment>(supabase, "attachments");
-  const modelsData = getItems<Model>(supabase, "models");
-  const attachmentNamesData = getItems<AttachmentName>(
-    supabase,
-    "attachment_names"
-  );
-  const [attachments, models, attachment_names] = await Promise.all([
-    attachmentsData,
-    modelsData,
-    attachmentNamesData,
-  ]);
+  // const attachmentsData = getItems<Attachment>(supabase, "attachments");
+  // const modelsData = getItems<Model>(supabase, "models");
+  // const attachmentNamesData = getItems<AttachmentName>(
+  //   supabase,
+  //   "attachment_names"
+  // );
+  const { data: attachments } = (await supabase
+    .from("attachments")
+    .select(
+      `id, attachment_names (name, type), models (name), characteristics`
+    )) as { data: JoinedAttachment[] };
+  // const [attachments, models, attachment_names] = await Promise.all([
+  //   attachmentsData,
+  //   modelsData,
+  //   attachmentNamesData,
+  // ]);
 
   // await new Promise((resolve) => setTimeout(resolve, 3000));
 
@@ -100,98 +135,7 @@ export default async function ServerComponent() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {attachments?.map((attachment) => (
-                      <tr key={attachment.id}>
-                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                          {attachment.id}
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {
-                            attachment_names?.find(
-                              (name) => name.id === attachment.type
-                            )?.name
-                          }
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {
-                            attachment_names?.find(
-                              (name) => name.id === attachment.type
-                            )?.type
-                          }
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {
-                            models?.find(
-                              (model) => model.id === attachment.model
-                            )?.name
-                          }
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          {attachment.characteristics.pros.map((pro) => (
-                            <p
-                              className="text-green-600 flex gap-x-1 items-center"
-                              key={pro}
-                            >
-                              <svg
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={1.5}
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                                aria-hidden="true"
-                                className="w-3 h-3"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5"
-                                />
-                              </svg>
-                              {pro}
-                            </p>
-                          ))}
-                          {attachment.characteristics.cons.map((con) => (
-                            <p
-                              className="text-red-600 flex gap-x-1 items-center"
-                              key={con}
-                            >
-                              <svg
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={1.5}
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                                aria-hidden="true"
-                                className="w-3 h-3"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M19.5 5.25l-7.5 7.5-7.5-7.5m15 6l-7.5 7.5-7.5-7.5"
-                                />
-                              </svg>
-                              {con}
-                            </p>
-                          ))}
-                        </td>
-                        <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                          <Link
-                            href={`/dashboard/attachments/edit/${attachment.id}`}
-                            className="text-blue-600 hover:text-blue-900"
-                          >
-                            Edit
-                            <span className="sr-only">
-                              ,
-                              {
-                                attachment_names?.find(
-                                  (name) => name.id === attachment.type
-                                )?.name
-                              }
-                            </span>
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
+                    <AttachmentRows serverData={attachments} />
                   </tbody>
                 </table>
               </div>
@@ -201,6 +145,4 @@ export default async function ServerComponent() {
       </div>
     </div>
   );
-
-  // return <pre>{JSON.stringify(attachments, null, 2)}</pre>;
 }

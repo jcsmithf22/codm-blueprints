@@ -5,24 +5,51 @@ import { updateAttachment } from "@/app/actions";
 import type { Attachment, AttachmentName, Model } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { NameSelect, ModelSelect } from "./attachments/Select";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Database } from "@/types/supabase";
+import { getItems, getItem } from "@/utils/functions";
 
 export default function EditAttachment({
-  attachment,
   attachmentId,
-  attachment_names,
-  models,
 }: {
-  attachment: Attachment;
   attachmentId: string;
-  attachment_names: AttachmentName[];
-  models: Model[];
 }) {
+  const supabase = createClientComponentClient<Database>();
   const [error, setError] = React.useState<string | null>(null);
-  const [formData, setFormData] = React.useState<Attachment>(attachment);
+  const [formData, setFormData] = React.useState<Attachment | null>(null);
+  const [models, setModels] = React.useState<Model[] | null>(null);
+  const [attachment_names, setAttachmentNames] = React.useState<
+    AttachmentName[] | null
+  >(null);
   const id = React.useId();
   const router = useRouter();
 
+  React.useEffect(() => {
+    const getData = async () => {
+      const modelPromise = getItems<Model>(supabase, "models");
+      const attachmentNamePromise = getItems<AttachmentName>(
+        supabase,
+        "attachment_names"
+      );
+      const attachmentPromise = getItem<Attachment>(
+        supabase,
+        "attachments",
+        attachmentId
+      );
+      const [models, attachment_names, attachment] = await Promise.all([
+        modelPromise,
+        attachmentNamePromise,
+        attachmentPromise,
+      ]);
+      setModels(models);
+      setAttachmentNames(attachment_names);
+      setFormData(attachment);
+    };
+    getData();
+  }, []);
+
   const handleSubmit = async () => {
+    if (!formData) return;
     const filteredState = produce(formData, (draft) => {
       draft.characteristics.pros = draft.characteristics.pros.filter(
         (pro) => pro !== ""
@@ -32,12 +59,34 @@ export default function EditAttachment({
       );
     });
 
-    const error = await updateAttachment(filteredState, attachmentId);
-    console.log("error", { error });
+    const { error } = await supabase
+      .from("attachments")
+      .update(filteredState)
+      .eq("id", attachmentId);
     if (!error) {
       router.back();
     }
   };
+
+  const setName = React.useCallback((name: string) => {
+    setFormData((formData) => {
+      if (!formData) return null;
+      return {
+        ...formData,
+        type: parseInt(name),
+      };
+    });
+  }, []);
+
+  const setModel = React.useCallback((model: string) => {
+    setFormData((formData) => {
+      if (!formData) return null;
+      return {
+        ...formData,
+        model: parseInt(model),
+      };
+    });
+  }, []);
   return (
     <form action={handleSubmit} className="">
       <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -48,15 +97,15 @@ export default function EditAttachment({
       </p>
       <div className="mt-10 flex flex-col gap-y-6">
         <ModelSelect
-          model={formData.model}
+          model={formData ? formData.model : null}
           models={models}
-          setFormData={setFormData}
+          setModel={setModel}
         />
 
         <NameSelect
           attachment_names={attachment_names}
-          setFormData={setFormData}
-          name={formData.type}
+          setName={setName}
+          name={formData ? formData.type : null}
         />
 
         <div className="">
@@ -67,7 +116,7 @@ export default function EditAttachment({
             Pros
           </label>
           <div className="mt-2">
-            {formData.characteristics.pros.map((pro, i) => (
+            {formData?.characteristics.pros.map((pro, i) => (
               <div className="flex gap-x-2 mb-2" key={i}>
                 <input
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
@@ -117,6 +166,7 @@ export default function EditAttachment({
             type="button"
             className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
             onClick={() => {
+              if (!formData) return;
               setFormData(
                 produce(formData, (draft) => {
                   draft.characteristics.pros.push("");
@@ -136,7 +186,7 @@ export default function EditAttachment({
             Cons
           </label>
           <div className="mt-2">
-            {formData.characteristics.cons.map((con, i) => (
+            {formData?.characteristics.cons.map((con, i) => (
               <div className="flex gap-x-2 mb-2" key={i}>
                 <input
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
@@ -185,6 +235,7 @@ export default function EditAttachment({
             type="button"
             className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
             onClick={() => {
+              if (!formData) return;
               setFormData(
                 produce(formData, (draft) => {
                   draft.characteristics.cons.push("");

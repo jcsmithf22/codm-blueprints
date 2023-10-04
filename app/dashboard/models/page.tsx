@@ -7,8 +7,24 @@ import { getItems } from "@/utils/functions";
 import Link from "next/link";
 import { Attachment, Model, AttachmentName } from "@/types/types";
 import { Database } from "@/types/supabase";
+import { Suspense } from "react";
+import LoadingTable from "@/components/LoadingTable";
 
-export default async function ServerComponent() {
+export default function ServerComponent() {
+  return (
+    <Suspense
+      fallback={
+        <LoadingTable title="Models">
+          A list of all models in the database.
+        </LoadingTable>
+      }
+    >
+      <Table />
+    </Suspense>
+  );
+}
+
+async function Table() {
   // Create a Supabase client configured to use cookies
   const supabase = createServerComponentClient<Database>({ cookies });
 
@@ -137,6 +153,4 @@ export default async function ServerComponent() {
       </div>
     </div>
   );
-
-  // return <pre>{JSON.stringify(attachments, null, 2)}</pre>;
 }

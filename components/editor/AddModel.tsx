@@ -25,6 +25,7 @@ export default function AddModel() {
 
     const error = await addModel(formData);
     if (!error) {
+      router.refresh();
       router.back();
     }
     console.log(error);

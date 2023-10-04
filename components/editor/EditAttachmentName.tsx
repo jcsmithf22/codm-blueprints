@@ -2,28 +2,60 @@
 import React from "react";
 import { updateAttachmentName } from "@/app/actions";
 import type { AttachmentName } from "@/types/types";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Database } from "@/types/supabase";
+import { classNames } from "@/utils/functions";
 
 export default function EditAttachmentName({
-  attachment_name,
   attachmentId,
 }: {
-  attachment_name: AttachmentName;
   attachmentId: string;
 }) {
+  const supabase = createClientComponentClient<Database>();
   const [error, setError] = React.useState<string | null>(null);
-  const [formData, setFormData] =
-    React.useState<AttachmentName>(attachment_name);
+  const [formData, setFormData] = React.useState<AttachmentName | null>(null);
   const id = React.useId();
   const router = useRouter();
 
+  React.useEffect(() => {
+    const getAttachmentName = async () => {
+      const { data, error } = await supabase
+        .from("attachment_names")
+        .select()
+        .eq("id", attachmentId)
+        .single();
+      if (!error) {
+        setFormData(data);
+      }
+    };
+    getAttachmentName();
+  }, []);
+
   const handleSubmit = async () => {
-    const error = await updateAttachmentName(formData, attachmentId);
+    // const error = await updateAttachmentName(formData, attachmentId);
+    if (!formData) return;
+    const { error } = await supabase
+      .from("attachment_names")
+      .update(formData)
+      .eq("id", attachmentId);
     if (!error) {
+      // router.refresh();
       router.back();
     }
     console.log(error);
   };
+
+  const handleDelete = async () => {
+    const { error } = await supabase
+      .from("attachment_names")
+      .delete()
+      .eq("id", attachmentId);
+    if (!error) {
+      router.back();
+    }
+  };
+
   return (
     <form action={handleSubmit} className="">
       <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -42,13 +74,17 @@ export default function EditAttachmentName({
           </label>
           <div className="mt-2">
             <input
-              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+              className={classNames(
+                "transition-colors block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6",
+                formData ? "text-gray-900" : "text-white"
+              )}
               type="text"
               id={`${id}-name`}
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              value={formData ? formData?.name : ""}
+              onChange={(e) => {
+                if (!formData) return;
+                setFormData({ ...formData, name: e.target.value });
+              }}
             />
           </div>
         </div>
@@ -64,11 +100,15 @@ export default function EditAttachmentName({
             <select
               name="type"
               id={`${id}-type`}
-              value={formData.type}
-              onChange={(e) =>
-                setFormData({ ...formData, type: e.target.value })
-              }
-              className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6"
+              value={formData ? formData?.type : "muzzle"}
+              onChange={(e) => {
+                if (!formData) return;
+                setFormData({ ...formData, type: e.target.value });
+              }}
+              className={classNames(
+                "transition-colors block w-full rounded-md border-0 py-1.5 pl-3 pr-10 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6",
+                formData ? "text-gray-900" : "text-white"
+              )}
             >
               <option value="muzzle">Muzzle</option>
               <option value="barrel">Barrel</option>
@@ -84,6 +124,13 @@ export default function EditAttachmentName({
         </div>
       </div>
       <div className="mt-6 flex items-center justify-end gap-x-6">
+        <button
+          type="button"
+          className="text-sm font-semibold leading-6 text-gray-900"
+          onClick={handleDelete}
+        >
+          Delete
+        </button>
         <button
           type="button"
           className="text-sm font-semibold leading-6 text-gray-900"

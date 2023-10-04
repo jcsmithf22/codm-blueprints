@@ -6,17 +6,9 @@ export default async function ServerLayout(props: {
   sidebar: React.ReactNode;
 }) {
   return (
-    <>
-      <Suspense
-        fallback={
-          <LoadingTable title="Types">
-            A list of all attachment types in the database.
-          </LoadingTable>
-        }
-      >
-        {props.children}
-      </Suspense>
+    <div className="flex flex-row">
+      <div className="flex-1">{props.children}</div>
       {props.sidebar}
-    </>
+    </div>
   );
 }

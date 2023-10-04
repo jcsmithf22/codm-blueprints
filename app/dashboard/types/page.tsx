@@ -6,8 +6,26 @@ import { Database } from "@/types/supabase";
 import Link from "next/link";
 import { getItems } from "@/utils/functions";
 import { AttachmentName } from "@/types/types";
+import { Suspense } from "react";
+import LoadingTable from "@/components/LoadingTable";
+import TypeRows from "@/components/table/TypeRows";
 
-export default async function ServerComponent() {
+export default function ServerComponent() {
+  // return <pre>{JSON.stringify(attachments, null, 2)}</pre>;
+  return (
+    <Suspense
+      fallback={
+        <LoadingTable title="Types">
+          A list of all attachment types in the database.
+        </LoadingTable>
+      }
+    >
+      <Table />
+    </Suspense>
+  );
+}
+
+async function Table() {
   // Create a Supabase client configured to use cookies
   const supabase = createServerComponentClient<Database>({ cookies });
 
@@ -18,7 +36,7 @@ export default async function ServerComponent() {
   const types = await getItems<AttachmentName>(supabase, "attachment_names");
 
   return (
-    <div className="bg-gray-100 pt-8 min-h-screen">
+    <div className="bg-gray-100 pt-8 h-screen overflow-y-scroll">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
@@ -72,7 +90,7 @@ export default async function ServerComponent() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {types?.map((type) => (
+                    {/* {types?.map((type) => (
                       <tr key={type.id}>
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                           {type.id}
@@ -93,7 +111,8 @@ export default async function ServerComponent() {
                           </Link>
                         </td>
                       </tr>
-                    ))}
+                    ))} */}
+                    <TypeRows serverData={types} />
                   </tbody>
                 </table>
               </div>
@@ -103,6 +122,4 @@ export default async function ServerComponent() {
       </div>
     </div>
   );
-
-  // return <pre>{JSON.stringify(attachments, null, 2)}</pre>;
 }

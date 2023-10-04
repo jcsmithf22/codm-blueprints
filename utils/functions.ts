@@ -11,8 +11,12 @@ export const getItem = cache(async function getItem<T>(
   table: string,
   id: string
 ) {
-  const { data: item } = (await supabase.from(table).select().eq("id", id)) as {
-    data: T[];
+  const { data: item } = (await supabase
+    .from(table)
+    .select()
+    .eq("id", id)
+    .single()) as {
+    data: T;
   };
   return item;
 });

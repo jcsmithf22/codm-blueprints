@@ -1,10 +1,12 @@
 "use client";
 import React from "react";
-import { addAttachmentName } from "@/app/actions";
 import type { AttachmentName } from "@/types/types";
 import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Database } from "@/types/supabase";
 
 export default function AddAttachmentName() {
+  const supabase = createClientComponentClient<Database>();
   const [error, setError] = React.useState<string | null>(null);
   const [formData, setFormData] = React.useState<AttachmentName>({
     type: "muzzle",
@@ -14,8 +16,12 @@ export default function AddAttachmentName() {
   const router = useRouter();
 
   const handleSubmit = async () => {
-    const error = await addAttachmentName(formData);
+    const { error } = await supabase
+      .from("attachment_names")
+      .insert([formData])
+      .select();
     if (!error) {
+      // router.refresh();
       router.back();
     }
     console.log(error);

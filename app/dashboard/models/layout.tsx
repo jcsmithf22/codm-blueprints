@@ -6,15 +6,7 @@ export default async function ServerLayout(props: {
 }) {
   return (
     <>
-      <Suspense
-        fallback={
-          <LoadingTable title="Models">
-            A list of all models in the database.
-          </LoadingTable>
-        }
-      >
-        {props.children}
-      </Suspense>
+      {props.children}
       {props.sidebar}
     </>
   );

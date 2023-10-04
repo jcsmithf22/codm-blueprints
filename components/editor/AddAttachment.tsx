@@ -1,19 +1,20 @@
 "use client";
 import React from "react";
 import { produce } from "immer";
-import { addAttachment } from "@/app/actions";
 import type { Attachment, AttachmentName, Model } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { NameSelect, ModelSelect } from "./attachments/Select";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Database } from "@/types/supabase";
+import { getItems } from "@/utils/functions";
 
-export default function AddAttachment({
-  attachment_names,
-  models,
-}: {
-  attachment_names: AttachmentName[];
-  models: Model[];
-}) {
+export default function AddAttachment() {
+  const supabase = createClientComponentClient<Database>();
   const [error, setError] = React.useState<string | null>(null);
+  const [models, setModels] = React.useState<Model[] | null>(null);
+  const [attachment_names, setAttachmentNames] = React.useState<
+    AttachmentName[] | null
+  >(null);
   const [formData, setFormData] = React.useState<Attachment>({
     type: -1,
     model: -1,
@@ -25,6 +26,23 @@ export default function AddAttachment({
   const id = React.useId();
   const router = useRouter();
 
+  React.useEffect(() => {
+    const getData = async () => {
+      const modelPromise = getItems<Model>(supabase, "models");
+      const attachmentNamePromise = getItems<AttachmentName>(
+        supabase,
+        "attachment_names"
+      );
+      const [models, attachment_names] = await Promise.all([
+        modelPromise,
+        attachmentNamePromise,
+      ]);
+      setModels(models);
+      setAttachmentNames(attachment_names);
+    };
+    getData();
+  }, []);
+
   const handleSubmit = async () => {
     const filteredState = produce(formData, (draft) => {
       draft.characteristics.pros = draft.characteristics.pros.filter(
@@ -35,12 +53,31 @@ export default function AddAttachment({
       );
     });
 
-    const error = await addAttachment(filteredState);
+    const { error } = await supabase
+      .from("attachments")
+      .insert([filteredState]);
+    // const error = await addAttachment(filteredState);
     if (!error) {
+      // router.push("/dashboard/attachments");
       router.back();
     }
     console.log(error);
   };
+
+  const setName = React.useCallback((name: string) => {
+    setFormData((formData) => ({
+      ...formData,
+      type: parseInt(name),
+    }));
+  }, []);
+
+  const setModel = React.useCallback((model: string) => {
+    setFormData((formData) => ({
+      ...formData,
+      model: parseInt(model),
+    }));
+  }, []);
+
   return (
     <form action={handleSubmit} className="">
       <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -53,13 +90,13 @@ export default function AddAttachment({
         <ModelSelect
           model={formData.model}
           models={models}
-          setFormData={setFormData}
+          setModel={setModel}
         />
 
         <NameSelect
           name={formData.type}
           attachment_names={attachment_names}
-          setFormData={setFormData}
+          setName={setName}
         />
 
         <div className="">

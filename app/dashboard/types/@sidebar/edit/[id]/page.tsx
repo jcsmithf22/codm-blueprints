@@ -6,25 +6,10 @@ import { cookies } from "next/headers";
 import { getItem } from "@/utils/functions";
 import { AttachmentName } from "@/types/types";
 
-export default async function Edit({ params }: { params: { id: string } }) {
-  const supabase = createServerComponentClient<Database>({ cookies });
-  // const { data: attachment_name } = await supabase
-  //   .from("attachment_names")
-  //   .select()
-  //   .eq("id", params.id);
-  const attachment_name = await getItem<AttachmentName>(
-    supabase,
-    "attachment_names",
-    params.id
-  );
+export default function Edit({ params }: { params: { id: string } }) {
   return (
     <Sidebar>
-      {attachment_name && (
-        <EditAttachmentName
-          attachment_name={attachment_name[0]}
-          attachmentId={params.id}
-        />
-      )}
+      <EditAttachmentName attachmentId={params.id} />
     </Sidebar>
   );
 }

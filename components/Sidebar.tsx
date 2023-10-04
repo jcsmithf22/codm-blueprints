@@ -9,7 +9,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
   return (
     <FocusLock>
       <RemoveScroll>
-        <div className="fixed inset-0 flex justify-end bg-black/40 z-20">
+        <div className="fixed inset-0 flex justify-end bg-black/40 z-20 animate-fadeIn">
           <div className="bg-white w-screen max-w-lg shadow-lg max-h-screen overflow-y-scroll">
             <div className="flex flex-row justify-end w-full">
               <button
