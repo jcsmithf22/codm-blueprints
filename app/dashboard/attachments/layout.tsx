@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import LoadingTable from "@/components/LoadingTable";
 import { Suspense } from "react";
 

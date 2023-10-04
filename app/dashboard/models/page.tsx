@@ -5,7 +5,7 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { getItems, getAttachments } from "@/utils/functions";
 import Link from "next/link";
-import { Attachment, Model, AttachmentName } from "@/types/types";
+import { Model } from "@/types/types";
 import { Database } from "@/types/supabase";
 
 import {
