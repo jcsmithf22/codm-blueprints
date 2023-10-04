@@ -9,6 +9,7 @@ import LoadingTable from "@/components/LoadingTable";
 import { Characteristics } from "@/types/types";
 import AttachmentRows from "@/components/table/AttachmentRows";
 
+// export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default function AttachmentsPage() {

@@ -1,5 +1,4 @@
-import { Suspense } from "react";
-import LoadingTable from "@/components/LoadingTable";
+export const dynamic = "force-dynamic";
 export default async function ServerLayout(props: {
   children: React.ReactNode;
   sidebar: React.ReactNode;

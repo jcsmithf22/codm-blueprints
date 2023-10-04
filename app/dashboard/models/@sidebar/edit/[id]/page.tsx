@@ -13,7 +13,7 @@ export default async function Edit({ params }: { params: { id: string } }) {
 
   return (
     <Sidebar>
-      {model && <EditModel model={model[0]} modelId={params.id} />}
+      {model && <EditModel model={model} modelId={params.id} />}
     </Sidebar>
   );
 }

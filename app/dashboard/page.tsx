@@ -2,7 +2,9 @@
 
 import { redirect } from "next/navigation";
 
-export default async function Dashboard({
+export const dynamic = "force-dynamic";
+
+export default function Dashboard({
   searchParams,
 }: {
   searchParams: { page: string };
