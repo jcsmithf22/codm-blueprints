@@ -7,24 +7,27 @@ import Providers from "./providers";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export default async function ServerLayout(props: {
   children: React.ReactNode;
 }) {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const cookieData = cookies();
+  const supabase = createServerComponentClient<Database>({
+    cookies: () => cookieData,
+  });
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // if (!session) {
-  //   // this is a protected route - only users who are signed in can view this route
-  //   redirect("/login/?error=must-be-signed-in");
-  // }
+  if (!session) {
+    // this is a protected route - only users who are signed in can view this route
+    redirect("/login/?error=must-be-signed-in");
+  }
 
-  // if (session.user.id !== process.env.PRIVATE_ROOT_UID) {
-  //   redirect("/?error=unauthorized");
-  // }
+  if (session.user.id !== process.env.PRIVATE_ROOT_UID) {
+    redirect("/?error=unauthorized");
+  }
 
   return (
     <Providers>

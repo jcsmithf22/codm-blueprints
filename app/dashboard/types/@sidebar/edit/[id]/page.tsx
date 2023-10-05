@@ -12,7 +12,10 @@ import { getItem } from "@/utils/functions";
 import { AttachmentName } from "@/types/types";
 
 export default async function Edit({ params }: { params: { id: string } }) {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const cookieData = cookies();
+  const supabase = createServerComponentClient<Database>({
+    cookies: () => cookieData,
+  });
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
     queryKey: ["types", params.id],

@@ -29,6 +29,7 @@ export type JoinedAttachment = {
     type: string;
   } | null;
   models: {
+    id: number;
     name: string;
   } | null;
   characteristics: Characteristics;

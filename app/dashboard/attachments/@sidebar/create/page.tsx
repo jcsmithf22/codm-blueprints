@@ -12,7 +12,10 @@ import { getItems } from "@/utils/functions";
 import { AttachmentName, Model } from "@/types/types";
 
 export default async function Create() {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const cookieData = cookies();
+  const supabase = createServerComponentClient<Database>({
+    cookies: () => cookieData,
+  });
   const queryClient = new QueryClient();
   await Promise.all([
     queryClient.prefetchQuery({
