@@ -8,6 +8,17 @@ import { classNames, deleteItem, getItem, updateItem } from "@/utils/functions";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { gunTypes } from "@/utils/gun_details";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+
 export default function EditModel({ modelId }: { modelId: string }) {
   const supabase = createClientComponentClient<Database>();
 
@@ -76,25 +87,24 @@ export default function EditModel({ modelId }: { modelId: string }) {
             Type
           </label>
           <div className="mt-2">
-            <select
-              name="type"
-              id={`${id}-type`}
-              value={formData ? formData.type : "assault"}
-              onChange={(e) => {
+            <Select
+              onValueChange={(value) => {
                 if (!formData) return;
-                setFormData({ ...formData, type: e.target.value });
+                setFormData({ ...formData, type: value });
               }}
-              className={classNames(
-                "transition-colors block w-full rounded-md border-0 py-1.5 pl-3 pr-10 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6",
-                formData ? "text-gray-900" : "text-white"
-              )}
+              defaultValue={formData ? formData.type : "assault"}
             >
-              {Object.keys(gunTypes).map((key) => (
-                <option key={key} value={key}>
-                  {gunTypes[key]}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an weapon category" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.keys(gunTypes).map((key) => (
+                  <SelectItem value={key} key={key}>
+                    {gunTypes[key]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -106,11 +116,7 @@ export default function EditModel({ modelId }: { modelId: string }) {
             Name
           </label>
           <div className="mt-2">
-            <input
-              className={classNames(
-                "transition-colors block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6",
-                formData ? "text-gray-900" : "text-white"
-              )}
+            <Input
               type="text"
               id={`${id}-name`}
               value={formData ? formData.name : ""}
@@ -122,27 +128,21 @@ export default function EditModel({ modelId }: { modelId: string }) {
           </div>
         </div>
       </div>
-      <div className="mt-6 flex items-center justify-end gap-x-6">
-        <button
-          type="button"
-          className="text-sm font-semibold leading-6 text-gray-900"
-          onClick={handleDelete}
-        >
+      <div className="mt-6 flex items-center justify-between w-full">
+        <Button type="button" variant="destructive" onClick={handleDelete}>
           Delete
-        </button>
-        <button
-          type="button"
-          className="text-sm font-semibold leading-6 text-gray-900"
-          onClick={() => router.back()}
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-        >
-          Save
-        </button>
+        </Button>
+        <div className="space-x-2">
+          <Button
+            variant="ghost"
+            type="button"
+            className="text-sm font-semibold leading-6 text-gray-900"
+            onClick={() => router.back()}
+          >
+            Cancel
+          </Button>
+          <Button type="submit">Save</Button>
+        </div>
       </div>
     </form>
   );

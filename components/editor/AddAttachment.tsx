@@ -8,6 +8,8 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@/types/supabase";
 import { getItems, insertItem } from "@/utils/functions";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function AddAttachment() {
   const supabase = createClientComponentClient<Database>();
@@ -58,16 +60,21 @@ export default function AddAttachment() {
   };
 
   const setName = React.useCallback((name: string) => {
+    const attachmentId =
+      attachment_names?.find((item) => item.name.toLowerCase() === name)?.id ||
+      -1;
     setFormData((formData) => ({
       ...formData,
-      type: parseInt(name),
+      type: attachmentId,
     }));
   }, []);
 
   const setModel = React.useCallback((model: string) => {
+    const modelId =
+      models?.find((item) => item.name.toLowerCase() === model)?.id || -1;
     setFormData((formData) => ({
       ...formData,
-      model: parseInt(model),
+      model: modelId,
     }));
   }, []);
 
@@ -102,8 +109,7 @@ export default function AddAttachment() {
           <div className="mt-2">
             {formData.characteristics.pros.map((pro, i) => (
               <div className="flex gap-x-2 mb-2" key={i}>
-                <input
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                <Input
                   type="text"
                   id={`${id}-pro-${i}`}
                   name={`pro-${i}`}
@@ -116,8 +122,9 @@ export default function AddAttachment() {
                     );
                   }}
                 />
-                <button
-                  className="rounded-md bg-white px-1.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                <Button
+                  className="px-2"
+                  variant="outline"
                   type="button"
                   onClick={() => {
                     setFormData(
@@ -141,14 +148,14 @@ export default function AddAttachment() {
                       d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>
-                </button>
+                </Button>
               </div>
             ))}
           </div>
 
-          <button
+          <Button
+            variant="outline"
             type="button"
-            className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
             onClick={() => {
               setFormData(
                 produce(formData, (draft) => {
@@ -158,7 +165,7 @@ export default function AddAttachment() {
             }}
           >
             New
-          </button>
+          </Button>
         </div>
 
         <div className="">
@@ -171,8 +178,7 @@ export default function AddAttachment() {
           <div className="mt-2">
             {formData.characteristics.cons.map((con, i) => (
               <div className="flex gap-x-2 mb-2" key={i}>
-                <input
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                <Input
                   type="text"
                   id={`${id}-con-${i}`}
                   name={`con-${i}`}
@@ -185,8 +191,9 @@ export default function AddAttachment() {
                     );
                   }}
                 />
-                <button
-                  className="rounded-md bg-white px-1.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                <Button
+                  className="px-2"
+                  variant="outline"
                   type="button"
                   onClick={() => {
                     setFormData(
@@ -210,13 +217,13 @@ export default function AddAttachment() {
                       d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>
-                </button>
+                </Button>
               </div>
             ))}
           </div>
-          <button
+          <Button
+            variant="outline"
             type="button"
-            className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
             onClick={() => {
               setFormData(
                 produce(formData, (draft) => {
@@ -226,23 +233,19 @@ export default function AddAttachment() {
             }}
           >
             New
-          </button>
+          </Button>
         </div>
       </div>
-      <div className="mt-6 flex items-center justify-end gap-x-6">
-        <button
+      <div className="mt-6 flex items-center justify-end gap-x-2 w-full">
+        <Button
+          variant="ghost"
           type="button"
           className="text-sm font-semibold leading-6 text-gray-900"
           onClick={() => router.back()}
         >
           Cancel
-        </button>
-        <button
-          type="submit"
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-        >
-          Save
-        </button>
+        </Button>
+        <Button type="submit">Save</Button>
       </div>
     </form>
   );

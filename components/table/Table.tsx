@@ -13,6 +13,7 @@ import { classNames } from "@/utils/functions";
 import { rankItem } from "@tanstack/match-sorter-utils";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import { SearchContext } from "../SearchProvider";
+import { Input } from "../ui/input";
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   // Rank the item
@@ -116,7 +117,7 @@ export function Table<T>({
                         )}
                         key={cell.id}
                       >
-                        <div className="max-h-20 overflow-y-scroll">
+                        <div className="max-h-20 overflow-y-scroll ">
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
@@ -158,7 +159,8 @@ export function DebouncedInput({
   }, [value]);
 
   return (
-    <input
+    <Input
+      type="text"
       {...props}
       value={value}
       onChange={(e) => setValue(e.target.value)}

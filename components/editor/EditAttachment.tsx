@@ -8,6 +8,9 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@/types/supabase";
 import { getItems, getItem, updateItem, deleteItem } from "@/utils/functions";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function EditAttachment({
   attachmentId,
@@ -58,7 +61,6 @@ export default function EditAttachment({
 
   const deleteMutation = useMutation({
     mutationFn: () => {
-      // await supabase.from("attachment_names").delete().eq("id", attachmentId);
       return deleteItem(supabase, "attachments", attachmentId);
     },
     onSuccess: () => {
@@ -88,22 +90,43 @@ export default function EditAttachment({
     deleteMutation.mutate();
   };
 
+  const attachmentNameIndex = React.useMemo(
+    () =>
+      attachment_names?.reduce((acc, attachment) => {
+        acc[attachment.name.toLowerCase()] = attachment;
+        return acc;
+      }, {} as { [key: string]: (typeof attachment_names)[0] }),
+    [attachment_names]
+  );
+
+  const modelNameIndex = React.useMemo(
+    () =>
+      models?.reduce((acc, model) => {
+        acc[model.name.toLowerCase()] = model;
+        return acc;
+      }, {} as { [key: string]: (typeof models)[0] }),
+    [models]
+  );
+
   const setName = React.useCallback((name: string) => {
+    // find amore efficient way to do this
+    const attachmentId = attachmentNameIndex?.[name.toLowerCase()]?.id || -1;
     setFormData((formData) => {
       if (!formData) return undefined;
       return {
         ...formData,
-        type: parseInt(name),
+        type: attachmentId,
       };
     });
   }, []);
 
   const setModel = React.useCallback((model: string) => {
+    const modelId = modelNameIndex?.[model.toLowerCase()]?.id || -1;
     setFormData((formData) => {
       if (!formData) return undefined;
       return {
         ...formData,
-        model: parseInt(model),
+        model: modelId,
       };
     });
   }, []);
@@ -117,7 +140,7 @@ export default function EditAttachment({
       </p>
       <div className="mt-10 flex flex-col gap-y-6">
         <ModelSelect
-          model={formData ? formData.model : null}
+          model={formData ? formData.model : -1}
           models={models}
           setModel={setModel}
         />
@@ -125,7 +148,7 @@ export default function EditAttachment({
         <NameSelect
           attachment_names={attachment_names}
           setName={setName}
-          name={formData ? formData.type : null}
+          name={formData ? formData.type : -1}
         />
 
         <div className="">
@@ -138,8 +161,7 @@ export default function EditAttachment({
           <div className="mt-2">
             {formData?.characteristics.pros.map((pro, i) => (
               <div className="flex gap-x-2 mb-2" key={i}>
-                <input
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                <Input
                   type="text"
                   id={`${id}-pro-${i}`}
                   name={`pro-${i}`}
@@ -152,8 +174,9 @@ export default function EditAttachment({
                     );
                   }}
                 />
-                <button
-                  className="rounded-md bg-white px-1.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                <Button
+                  className="px-2"
+                  variant="outline"
                   type="button"
                   onClick={() => {
                     setFormData(
@@ -177,14 +200,14 @@ export default function EditAttachment({
                       d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>
-                </button>
+                </Button>
               </div>
             ))}
           </div>
 
-          <button
+          <Button
+            variant="outline"
             type="button"
-            className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
             onClick={() => {
               if (!formData) return;
               setFormData(
@@ -195,7 +218,7 @@ export default function EditAttachment({
             }}
           >
             New
-          </button>
+          </Button>
         </div>
 
         <div className="">
@@ -208,8 +231,7 @@ export default function EditAttachment({
           <div className="mt-2">
             {formData?.characteristics.cons.map((con, i) => (
               <div className="flex gap-x-2 mb-2" key={i}>
-                <input
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                <Input
                   type="text"
                   id={`${id}-con-${i}`}
                   name={`con-${i}`}
@@ -222,8 +244,9 @@ export default function EditAttachment({
                     );
                   }}
                 />
-                <button
-                  className="rounded-md bg-white px-1.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                <Button
+                  className="px-2"
+                  variant="outline"
                   type="button"
                   onClick={() => {
                     setFormData(
@@ -247,13 +270,13 @@ export default function EditAttachment({
                       d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>
-                </button>
+                </Button>
               </div>
             ))}
           </div>
-          <button
+          <Button
+            variant="outline"
             type="button"
-            className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
             onClick={() => {
               if (!formData) return;
               setFormData(
@@ -264,30 +287,24 @@ export default function EditAttachment({
             }}
           >
             New
-          </button>
+          </Button>
         </div>
       </div>
-      <div className="mt-6 flex items-center justify-end gap-x-6">
-        <button
-          type="button"
-          className="text-sm font-semibold leading-6 text-gray-900"
-          onClick={handleDelete}
-        >
+      <div className="mt-6 flex items-center justify-between w-full">
+        <Button type="button" variant="destructive" onClick={handleDelete}>
           Delete
-        </button>
-        <button
-          type="button"
-          className="text-sm font-semibold leading-6 text-gray-900"
-          onClick={() => router.back()}
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-        >
-          Save
-        </button>
+        </Button>
+        <div className="space-x-2">
+          <Button
+            variant="ghost"
+            type="button"
+            className="text-sm font-semibold leading-6 text-gray-900"
+            onClick={() => router.back()}
+          >
+            Cancel
+          </Button>
+          <Button type="submit">Save</Button>
+        </div>
       </div>
     </form>
   );
