@@ -12,7 +12,7 @@ import {
   SwatchIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 type Icon = React.ForwardRefExoticComponent<
   Omit<React.SVGProps<SVGSVGElement>, "ref"> & {
@@ -57,7 +57,7 @@ export default function DashboardNavigation() {
     <nav className="flex flex-1 flex-col">
       <ul
         role="list"
-        className="-mx-2 space-y-1"
+        className="-mx-2 space-y-1 group"
         onMouseLeave={() => setHoveredNavItem(null)}
       >
         {navigation.map(({ name, icon: Icon, href }) => {
@@ -70,6 +70,8 @@ export default function DashboardNavigation() {
                 zIndex: hoveredNavItem === name ? 1 : 2,
               }}
             >
+              {/* <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute inset-0"> */}
+              {/* <AnimatePresence> */}
               {hoveredNavItem === name && (
                 <motion.div
                   layoutId={id}
@@ -77,8 +79,13 @@ export default function DashboardNavigation() {
                   initial={{
                     borderRadius: 6,
                   }}
+                  // exit={{
+                  //   opacity: 0,
+                  // }}
                 />
               )}
+              {/* </div> */}
+              {/* </AnimatePresence> */}
 
               <Link
                 href={href}

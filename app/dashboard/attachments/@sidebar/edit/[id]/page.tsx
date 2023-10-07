@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-query";
 import { getItem, getItems } from "@/utils/functions";
 import { Attachment, AttachmentName, Model } from "@/types/types";
+import AttachmentEditor from "@/components/editor/AttachmentEditor";
 
 export default async function Edit({ params }: { params: { id: string } }) {
   const cookieData = cookies();
@@ -34,7 +35,7 @@ export default async function Edit({ params }: { params: { id: string } }) {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Sidebar>
-        <EditAttachment attachmentId={params.id} />
+        <AttachmentEditor attachmentId={params.id} />
       </Sidebar>
     </HydrationBoundary>
   );

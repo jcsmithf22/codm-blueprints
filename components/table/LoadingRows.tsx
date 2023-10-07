@@ -27,11 +27,11 @@ export default function LoadingRows({
                       key={index}
                       scope="col"
                       className={classNames(
-                        "px-3 py-3.5 text-left text-sm font-semibold text-gray-900",
+                        "px-3 pt-4 pb-[14px] text-left text-sm font-semibold text-gray-900",
                         columnClass[column]
                       )}
                     >
-                      {column}
+                      <div className="mt-0.5">{column}</div>
                     </th>
                   ))}
                   <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">

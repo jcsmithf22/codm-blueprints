@@ -1,7 +1,7 @@
 import Link from "next/link";
 import AttachmentRows from "@/components/table/AttachmentRows";
 import { SearchProvider } from "@/components/SearchProvider";
-import { DebouncedInput } from "@/components/table/Table";
+import { GlobalFilterInput } from "@/components/table/Table";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +19,7 @@ export default function AttachmentsPage() {
             </p>
           </div>
           <div className="flex gap-x-2 justify-between w-full lg:justify-end">
-            <DebouncedInput
+            <GlobalFilterInput
               placeholder="Search all columns..."
               className="w-full sm:w-72 bg-gray-50"
             />

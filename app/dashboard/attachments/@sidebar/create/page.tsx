@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-query";
 import { getItems } from "@/utils/functions";
 import { AttachmentName, Model } from "@/types/types";
+import AttachmentEditor from "@/components/editor/AttachmentEditor";
 
 export default async function Create() {
   const cookieData = cookies();
@@ -30,7 +31,7 @@ export default async function Create() {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Sidebar>
-        <AddAttachment />
+        <AttachmentEditor />
       </Sidebar>
     </HydrationBoundary>
   );

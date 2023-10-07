@@ -24,22 +24,28 @@ const columns = [
   columnHelper.accessor("name", {
     id: "name",
     header: "Name",
+    filterFn: "arrIncludesSome",
   }),
   columnHelper.accessor("type", {
+    id: "type",
     header: "Type",
+    filterFn: "arrIncludesSome",
   }),
   columnHelper.accessor("id", {
     id: "actions",
     cell: (item) => (
       <Link
         href={`/dashboard/types/edit/${item.getValue()}`}
-        className="text-blue-600 hover:text-blue-900"
+        className="text-blue-600 hover:text-blue-900 mr-2"
       >
         Edit
         <span className="sr-only">, {item.row.getValue("name")}</span>
       </Link>
     ),
     header: () => <span className="sr-only">Edit</span>,
+    enableColumnFilter: false,
+    enableGlobalFilter: false,
+    enableSorting: false,
   }),
 ];
 

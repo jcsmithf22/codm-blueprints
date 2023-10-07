@@ -24,12 +24,17 @@ const columns = [
   columnHelper.accessor((row) => row.attachment_names?.name, {
     id: "name",
     header: "Name",
+    filterFn: "arrIncludesSome",
   }),
   columnHelper.accessor((row) => row.attachment_names?.type, {
+    id: "type",
     header: "Type",
+    filterFn: "arrIncludesSome",
   }),
   columnHelper.accessor((row) => row.models?.name, {
+    id: "model",
     header: "Model",
+    filterFn: "arrIncludesSome",
   }),
   columnHelper.accessor("characteristics", {
     header: "Characteristics",
@@ -78,13 +83,15 @@ const columns = [
       </>
     ),
     enableSorting: false,
+    enableColumnFilter: false,
+    enableGlobalFilter: false,
   }),
   columnHelper.accessor("id", {
     id: "actions",
     cell: (item) => (
       <Link
         href={`/dashboard/attachments/edit/${item.getValue()}`}
-        className="text-blue-600 hover:text-blue-900"
+        className="text-blue-600 hover:text-blue-900 mr-2"
       >
         Edit
         <span className="sr-only">, {item.row.getValue("name")}</span>
@@ -92,6 +99,8 @@ const columns = [
     ),
     header: () => <span className="sr-only">Edit</span>,
     enableSorting: false,
+    enableColumnFilter: false,
+    enableGlobalFilter: false,
   }),
 ];
 
