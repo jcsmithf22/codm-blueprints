@@ -1,6 +1,7 @@
 import { classNames } from "@/utils/functions";
 const columnClass: { [key: string]: string } = {
   ID: "pl-4 pr-3 font-medium text-gray-900 sm:pl-6",
+  Name: "pl-4 pr-3 font-medium text-gray-900 sm:pl-6",
 };
 
 export default function LoadingRows({

@@ -25,7 +25,7 @@ export default function ServerComponent() {
               className="w-full sm:w-72 bg-gray-50"
             />
             <Link
-              href="/dashboard/types/create"
+              href="/dashboard/models/create"
               className={cn(
                 buttonVariants({ variant: "default" }),
                 "flex-shrink-0"

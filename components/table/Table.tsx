@@ -28,6 +28,7 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 
 const columnClass: { [key: string]: string } = {
   id: "pl-4 pr-3 font-medium text-gray-900 sm:pl-6",
+  name: "pl-4 pr-3 font-medium text-gray-900 sm:pl-6",
   actions: "relative pl-3 pr-4 text-right font-medium sm:pr-6",
 };
 

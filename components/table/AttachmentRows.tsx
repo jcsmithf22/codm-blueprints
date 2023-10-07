@@ -17,10 +17,10 @@ const columnHelper = createColumnHelper<JoinedAttachment>();
 
 const columns = [
   // id column
-  columnHelper.accessor("id", {
-    id: "id",
-    header: "ID",
-  }),
+  // columnHelper.accessor("id", {
+  //   id: "id",
+  //   header: "ID",
+  // }),
   columnHelper.accessor((row) => row.attachment_names?.name, {
     id: "name",
     header: "Name",
@@ -79,18 +79,19 @@ const columns = [
     ),
     enableSorting: false,
   }),
-  columnHelper.display({
+  columnHelper.accessor("id", {
     id: "actions",
-    cell: (props) => (
+    cell: (item) => (
       <Link
-        href={`/dashboard/attachments/edit/${props.row.getValue("id")}`}
+        href={`/dashboard/attachments/edit/${item.getValue()}`}
         className="text-blue-600 hover:text-blue-900"
       >
         Edit
-        <span className="sr-only">, {props.row.getValue("name")}</span>
+        <span className="sr-only">, {item.row.getValue("name")}</span>
       </Link>
     ),
     header: () => <span className="sr-only">Edit</span>,
+    enableSorting: false,
   }),
 ];
 
@@ -103,9 +104,7 @@ export default function AttachmentRows() {
 
   if (isPending) {
     return (
-      <LoadingRows
-        columns={["ID", "Name", "Type", "Model", "Characteristics"]}
-      />
+      <LoadingRows columns={["Name", "Type", "Model", "Characteristics"]} />
     );
   }
 

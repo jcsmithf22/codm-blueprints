@@ -17,10 +17,10 @@ const columnHelper = createColumnHelper<AttachmentName>();
 
 const columns = [
   // id column
-  columnHelper.accessor("id", {
-    id: "id",
-    header: "ID",
-  }),
+  // columnHelper.accessor("id", {
+  //   id: "id",
+  //   header: "ID",
+  // }),
   columnHelper.accessor("name", {
     id: "name",
     header: "Name",
@@ -28,15 +28,15 @@ const columns = [
   columnHelper.accessor("type", {
     header: "Type",
   }),
-  columnHelper.display({
+  columnHelper.accessor("id", {
     id: "actions",
-    cell: (props) => (
+    cell: (item) => (
       <Link
-        href={`/dashboard/types/edit/${props.row.getValue("id")}`}
+        href={`/dashboard/types/edit/${item.getValue()}`}
         className="text-blue-600 hover:text-blue-900"
       >
         Edit
-        <span className="sr-only">, {props.row.getValue("name")}</span>
+        <span className="sr-only">, {item.row.getValue("name")}</span>
       </Link>
     ),
     header: () => <span className="sr-only">Edit</span>,
@@ -57,7 +57,7 @@ export default function TypeRows() {
 
   // refactor
   if (isPending) {
-    return <LoadingRows columns={["ID", "Name", "Type"]} />;
+    return <LoadingRows columns={["Name", "Type"]} />;
     // return "Loading...";
   }
 
