@@ -11,6 +11,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
+import { flushSync } from "react-dom";
 
 export default function EditAttachment({
   attachmentId,
@@ -36,6 +37,12 @@ export default function EditAttachment({
   const id = React.useId();
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  const currentConInput = React.useRef<HTMLInputElement>(null);
+  const currentProInput = React.useRef<HTMLInputElement>(null);
+
+  const lastCon = formData ? formData.characteristics.cons.length - 1 : -1;
+  const lastPro = formData ? formData.characteristics.pros.length - 1 : -1;
 
   React.useEffect(() => {
     setFormData(attachment);
@@ -162,6 +169,7 @@ export default function EditAttachment({
             {formData?.characteristics.pros.map((pro, i) => (
               <div className="flex gap-x-2 mb-2" key={i}>
                 <Input
+                  ref={i === lastPro ? currentProInput : undefined}
                   type="text"
                   id={`${id}-pro-${i}`}
                   name={`pro-${i}`}
@@ -210,11 +218,14 @@ export default function EditAttachment({
             type="button"
             onClick={() => {
               if (!formData) return;
-              setFormData(
-                produce(formData, (draft) => {
-                  draft.characteristics.pros.push("");
-                })
-              );
+              flushSync(() => {
+                setFormData(
+                  produce(formData, (draft) => {
+                    draft.characteristics.pros.push("");
+                  })
+                );
+              });
+              currentProInput.current?.focus();
             }}
           >
             New
@@ -232,6 +243,7 @@ export default function EditAttachment({
             {formData?.characteristics.cons.map((con, i) => (
               <div className="flex gap-x-2 mb-2" key={i}>
                 <Input
+                  ref={i === lastCon ? currentConInput : undefined}
                   type="text"
                   id={`${id}-con-${i}`}
                   name={`con-${i}`}
@@ -279,11 +291,14 @@ export default function EditAttachment({
             type="button"
             onClick={() => {
               if (!formData) return;
-              setFormData(
-                produce(formData, (draft) => {
-                  draft.characteristics.cons.push("");
-                })
-              );
+              flushSync(() => {
+                setFormData(
+                  produce(formData, (draft) => {
+                    draft.characteristics.cons.push("");
+                  })
+                );
+              });
+              currentConInput.current?.focus();
             }}
           >
             New

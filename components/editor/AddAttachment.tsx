@@ -10,6 +10,7 @@ import { getItems, insertItem } from "@/utils/functions";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { flushSync } from "react-dom";
 
 export default function AddAttachment() {
   const supabase = createClientComponentClient<Database>();
@@ -32,6 +33,20 @@ export default function AddAttachment() {
   const id = React.useId();
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  const currentConInput = React.useRef<HTMLInputElement>(null);
+  const currentProInput = React.useRef<HTMLInputElement>(null);
+
+  const lastCon = formData.characteristics.cons.length - 1;
+  const lastPro = formData.characteristics.pros.length - 1;
+
+  React.useEffect(() => {
+    currentConInput.current?.focus();
+  }, [lastCon]);
+
+  React.useEffect(() => {
+    currentProInput.current?.focus();
+  }, [lastPro]);
 
   const newMutation = useMutation({
     mutationFn: (newData: Attachment) => {
@@ -110,6 +125,7 @@ export default function AddAttachment() {
             {formData.characteristics.pros.map((pro, i) => (
               <div className="flex gap-x-2 mb-2" key={i}>
                 <Input
+                  ref={i === lastPro ? currentProInput : undefined}
                   type="text"
                   id={`${id}-pro-${i}`}
                   name={`pro-${i}`}
@@ -157,11 +173,14 @@ export default function AddAttachment() {
             variant="outline"
             type="button"
             onClick={() => {
-              setFormData(
-                produce(formData, (draft) => {
-                  draft.characteristics.pros.push("");
-                })
-              );
+              flushSync(() => {
+                setFormData(
+                  produce(formData, (draft) => {
+                    draft.characteristics.pros.push("");
+                  })
+                );
+              });
+              currentProInput.current?.focus();
             }}
           >
             New
@@ -179,6 +198,7 @@ export default function AddAttachment() {
             {formData.characteristics.cons.map((con, i) => (
               <div className="flex gap-x-2 mb-2" key={i}>
                 <Input
+                  ref={i === lastCon ? currentConInput : undefined}
                   type="text"
                   id={`${id}-con-${i}`}
                   name={`con-${i}`}
@@ -225,11 +245,14 @@ export default function AddAttachment() {
             variant="outline"
             type="button"
             onClick={() => {
-              setFormData(
-                produce(formData, (draft) => {
-                  draft.characteristics.cons.push("");
-                })
-              );
+              flushSync(() => {
+                setFormData(
+                  produce(formData, (draft) => {
+                    draft.characteristics.cons.push("");
+                  })
+                );
+              });
+              currentConInput.current?.focus();
             }}
           >
             New
