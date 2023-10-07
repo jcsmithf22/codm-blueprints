@@ -6,6 +6,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@/types/supabase";
 import { classNames, deleteItem, getItem, updateItem } from "@/utils/functions";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { gunTypes } from "@/utils/gun_details";
 
 export default function EditModel({ modelId }: { modelId: string }) {
   const supabase = createClientComponentClient<Database>();
@@ -88,8 +89,11 @@ export default function EditModel({ modelId }: { modelId: string }) {
                 formData ? "text-gray-900" : "text-white"
               )}
             >
-              <option value="assault">Assault</option>
-              <option value="smg">SMG</option>
+              {Object.keys(gunTypes).map((key) => (
+                <option key={key} value={key}>
+                  {gunTypes[key]}
+                </option>
+              ))}
             </select>
           </div>
         </div>

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { classNames } from "@/utils/functions";
 
 import {
-  Cog6ToothIcon,
+  // Cog6ToothIcon,
   FolderIcon,
   PuzzlePieceIcon,
   SwatchIcon,
@@ -43,7 +43,7 @@ const navigation: Navigation[] = [
     href: "/dashboard/types",
     icon: SwatchIcon,
   },
-  { name: "Settings", href: "#", icon: Cog6ToothIcon },
+  // { name: "Settings", href: "#", icon: Cog6ToothIcon },
 ];
 
 export default function DashboardNavigation() {

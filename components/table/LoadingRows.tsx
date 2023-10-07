@@ -1,35 +1,71 @@
+import { classNames } from "@/utils/functions";
+const columnClass: { [key: string]: string } = {
+  ID: "pl-4 pr-3 font-medium text-gray-900 sm:pl-6",
+};
+
 export default function LoadingRows({
   barWidth = 80,
   rowNumber = 3,
-  columnNumber,
+  columns,
 }: {
   barWidth?: number;
   rowNumber?: number;
-  columnNumber: number;
+  columns: string[];
 }) {
   const range = Array(rowNumber).fill(0);
-  return range.map((_, index) => (
-    <Row key={index} width={barWidth} columnNumber={columnNumber} />
-  ));
+  return (
+    <div className="mt-8 flow-root">
+      <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+          <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+            <table className="min-w-full divide-y divide-gray-300">
+              <thead className="bg-gray-50">
+                <tr>
+                  {columns.map((column, index) => (
+                    <th
+                      key={index}
+                      scope="col"
+                      className={classNames(
+                        "px-3 py-3.5 text-left text-sm font-semibold text-gray-900",
+                        columnClass[column]
+                      )}
+                    >
+                      {column}
+                    </th>
+                  ))}
+                  <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                    <span className="sr-only">Edit</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {range.map((_, index) => (
+                  <Row key={index} width={barWidth} columns={columns} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-function Row({ width, columnNumber }: { width: number; columnNumber: number }) {
-  if (columnNumber === 1) return;
-  const range = Array(columnNumber - 1).fill(0);
+function Row({ width, columns }: { width: number; columns: string[] }) {
   return (
     <tr>
-      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-        <LoadingState width={width} />
-      </td>
-      {range.map((_, index) => (
+      {columns.map((column, index) => (
         <td
           key={index}
-          className="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+          className={classNames(
+            "whitespace-nowrap px-3 py-4 text-sm text-gray-500",
+            columnClass[column]
+          )}
         >
           <LoadingState width={width} />
         </td>
       ))}
-      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 text-blue-600">
+      <td className="relative whitespace-nowrap py-4 text-sm text-blue-600">
         Edit
       </td>
     </tr>

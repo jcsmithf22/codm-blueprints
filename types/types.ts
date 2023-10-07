@@ -34,3 +34,21 @@ export type JoinedAttachment = {
   } | null;
   characteristics: Characteristics;
 };
+
+export type CombinedModelsAttachments = {
+  attachments: {
+    id: number;
+    attachment_names: {
+      name: string;
+      type: string;
+    } | null;
+    models: {
+      id: number;
+      name: string;
+    } | null;
+    characteristics: Characteristics;
+  }[];
+  id?: number | undefined;
+  name: string;
+  type: string;
+};
