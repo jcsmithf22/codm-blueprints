@@ -111,15 +111,17 @@ export function Table<T>({
                     {row.getVisibleCells().map((cell) => (
                       <td
                         className={classNames(
-                          "whitespace-nowrap px-3 py-4 text-sm text-gray-500",
+                          "whitespace-nowrap px-3 py-4 text-sm text-gray-500 h-10",
                           columnClass[cell.column.id]
                         )}
                         key={cell.id}
                       >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        <div className="max-h-20 overflow-y-scroll">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </div>
                       </td>
                     ))}
                   </tr>
