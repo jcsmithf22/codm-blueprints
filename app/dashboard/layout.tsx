@@ -58,7 +58,7 @@ export default async function ServerLayout(props: {
           </div>
         </div>
 
-        <div className="md:pl-72">{props.children}</div>
+        <div className="md:pl-72 relative">{props.children}</div>
       </div>
     </Providers>
   );
