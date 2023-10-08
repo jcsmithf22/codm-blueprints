@@ -11,8 +11,14 @@ import { JoinedAttachment } from "@/types/types";
 import LoadingRows from "./LoadingRows";
 import { ColumnDef } from "@tanstack/react-table";
 
+const Loading = () => {
+  return <LoadingRows columns={["Name", "Type", "Model", "Characteristics"]} />;
+};
+
 // import { Table } from "./Table";
-const Table = dynamic(() => import("./Table").then((mod) => mod.Table)) as <T>({
+const Table = dynamic(() => import("./Table").then((mod) => mod.Table), {
+  loading: Loading,
+}) as <T>({
   data,
   columns,
 }: {
