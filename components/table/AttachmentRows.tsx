@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import dynamic from "next/dynamic";
 
 import { Database } from "@/types/supabase";
 import Link from "next/link";
@@ -8,8 +9,17 @@ import { useQuery } from "@tanstack/react-query";
 import { getAttachments } from "@/utils/functions";
 import { JoinedAttachment } from "@/types/types";
 import LoadingRows from "./LoadingRows";
+import { ColumnDef } from "@tanstack/react-table";
 
-import { Table } from "./Table";
+// import { Table } from "./Table";
+const Table = dynamic(() => import("./Table").then((mod) => mod.Table)) as <T>({
+  data,
+  columns,
+}: {
+  data: T[];
+  columns: ColumnDef<T, any>[];
+}) => React.JSX.Element;
+// const Table = dynamic()
 
 import { createColumnHelper } from "@tanstack/react-table";
 
