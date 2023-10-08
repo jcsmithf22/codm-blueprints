@@ -33,9 +33,17 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 import { Listbox, Transition } from "@headlessui/react";
 import { cn } from "@/lib/utils";
+import { flushSync } from "react-dom";
+import { X } from "lucide-react";
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   // Rank the item
@@ -197,11 +205,13 @@ function Filter({
   table: Table<any>;
   text: JSX.Element | React.ReactNode;
 }) {
+  const [selected, setSelected] = React.useState<string[]>([]);
+  const [open, setOpen] = React.useState(false);
   const firstValue = table
     .getPreFilteredRowModel()
     .flatRows[0]?.getValue(column.id);
 
-  const columnFilterValue = column.getFilterValue();
+  // const columnFilterValue = column.getFilterValue();
 
   const sortedUniqueValues = React.useMemo(
     () =>
@@ -211,103 +221,30 @@ function Filter({
     [column.getFacetedUniqueValues()]
   );
 
-  const [selected, setSelected] = React.useState([]);
+  if (typeof firstValue === "number") return Text;
 
-  return typeof firstValue === "number" ? (
-    <div>
-      <div className="flex space-x-2">
-        <DebouncedInput
-          type="number"
-          min={Number(column.getFacetedMinMaxValues()?.[0] ?? "")}
-          max={Number(column.getFacetedMinMaxValues()?.[1] ?? "")}
-          value={(columnFilterValue as [number, number])?.[0] ?? ""}
-          onChange={(value) =>
-            column.setFilterValue((old: [number, number]) => [value, old?.[1]])
-          }
-          placeholder={`Min ${
-            column.getFacetedMinMaxValues()?.[0]
-              ? `(${column.getFacetedMinMaxValues()?.[0]})`
-              : ""
-          }`}
-          className="w-24 border shadow rounded"
-        />
-        <DebouncedInput
-          type="number"
-          min={Number(column.getFacetedMinMaxValues()?.[0] ?? "")}
-          max={Number(column.getFacetedMinMaxValues()?.[1] ?? "")}
-          value={(columnFilterValue as [number, number])?.[1] ?? ""}
-          onChange={(value) =>
-            column.setFilterValue((old: [number, number]) => [old?.[0], value])
-          }
-          placeholder={`Max ${
-            column.getFacetedMinMaxValues()?.[1]
-              ? `(${column.getFacetedMinMaxValues()?.[1]})`
-              : ""
-          }`}
-          className="w-24 border shadow rounded"
-        />
-      </div>
-      <div className="h-1" />
-    </div>
-  ) : (
-    <Listbox
-      value={selected}
-      onChange={(value) => {
-        setSelected(value);
-        column.setFilterValue(value);
-      }}
-      multiple
-    >
-      <div className="relative mt-1">
-        <Listbox.Button>
-          <span className="block truncate">{Text}</span>
-        </Listbox.Button>
-        <Transition
-          as={React.Fragment}
-          leave="transition ease-in duration-100"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          type="button"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between p-0 py-0 h-min mt-1"
         >
-          <Listbox.Options className="absolute mt-1 w-fit min-w-[132px] rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            <Command>
-              <CommandInput
-                onKeyDown={(e) => {
-                  if (e.key === " ") {
-                    e.stopPropagation();
-                  }
-                }}
-                placeholder={`Search... (${
-                  column.getFacetedUniqueValues().size
-                })`}
-              />
-              <CommandEmpty>No attachments found.</CommandEmpty>
-              <CommandGroup className="max-h-[232px] overflow-y-scroll">
-                {sortedUniqueValues.slice(0, 5000).map((value) => (
-                  <CommandItem key={value} value={value}>
-                    <Listbox.Option
-                      className="w-full font-normal"
-                      value={value}
-                    >
-                      {({ selected }) => (
-                        <div className="flex items-center whitespace-nowrap overflow-hidden pr-5">
-                          <CheckIcon
-                            className={cn(
-                              "mr-2 w-4 h-4 opacity-0 flex-shrink-0",
-                              selected && "opacity-100"
-                            )}
-                          />
-                          {value}
-                        </div>
-                      )}
-                    </Listbox.Option>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </Command>
-          </Listbox.Options>
-        </Transition>
-      </div>
-    </Listbox>
+          {Text}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-fit p-0">
+        <MultipleSelectCommand
+          values={sortedUniqueValues}
+          selected={selected}
+          setSelected={setSelected}
+          column={column}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -363,3 +300,78 @@ export function DebouncedInput({
     />
   );
 }
+
+const MultipleSelectCommand = ({
+  values,
+  selected,
+  setSelected,
+  column,
+  type = "values",
+}: {
+  values: string[];
+  selected: string[];
+  setSelected: React.Dispatch<React.SetStateAction<string[]>>;
+  column: Column<any, unknown>;
+  type?: string;
+}) => {
+  const [value, setValue] = React.useState("");
+
+  return (
+    <Command value={value} onValueChange={(value) => setValue(value)}>
+      <CommandInput placeholder={`Search ${values.length} ${type}`} />
+      <CommandEmpty>No attachments found.</CommandEmpty>
+      <CommandGroup className="max-h-[232px] overflow-y-scroll">
+        {values.slice(0, 5000).map((item) => (
+          <CommandItem
+            key={item}
+            value={item}
+            onSelect={(currentValue) => {
+              const alreadyAdded = selected.includes(item);
+              const newValues = alreadyAdded
+                ? selected.filter((value) => value !== item)
+                : [...selected, item];
+              flushSync(() => {
+                setSelected(newValues);
+              });
+              column.setFilterValue(newValues);
+              setValue(currentValue);
+            }}
+          >
+            <CheckIcon
+              className={cn(
+                "mr-2 w-4 h-4",
+                selected.includes(item) ? "opacity-100" : "opacity-0"
+              )}
+            />
+            {item}
+          </CommandItem>
+        ))}
+      </CommandGroup>
+      {selected.length > 0 && (
+        <CommandGroup heading="Selected" className="-mt-2">
+          {selected.map((item) => (
+            <CommandItem
+              key={item}
+              value={item + "-selected"}
+              onSelect={(currentValue) => {
+                const newValues = selected.filter((value) => value !== item);
+                flushSync(() => {
+                  setSelected(newValues);
+                });
+                column.setFilterValue(newValues);
+                setValue(
+                  selected.length > 0
+                    ? selected.slice(-1)[0] + "-selected"
+                    : values[0]
+                );
+              }}
+            >
+              <X className={cn("mr-2 w-4 h-4")} />
+              {item}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      )}
+    </Command>
+  );
+};
