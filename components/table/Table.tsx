@@ -196,57 +196,59 @@ export function Table<T>({
   );
 }
 
-function Filter({
-  column,
-  table,
-  text: Text,
-}: {
-  column: Column<any, unknown>;
-  table: Table<any>;
-  text: JSX.Element | React.ReactNode;
-}) {
-  const [selected, setSelected] = React.useState<string[]>([]);
-  const [open, setOpen] = React.useState(false);
-  const firstValue = table
-    .getPreFilteredRowModel()
-    .flatRows[0]?.getValue(column.id);
+const Filter = React.memo(
+  ({
+    column,
+    table,
+    text: Text,
+  }: {
+    column: Column<any, unknown>;
+    table: Table<any>;
+    text: JSX.Element | React.ReactNode;
+  }) => {
+    const [selected, setSelected] = React.useState<string[]>([]);
+    const [open, setOpen] = React.useState(false);
+    const firstValue = table
+      .getPreFilteredRowModel()
+      .flatRows[0]?.getValue(column.id);
 
-  // const columnFilterValue = column.getFilterValue();
+    // const columnFilterValue = column.getFilterValue();
 
-  const sortedUniqueValues = React.useMemo(
-    () =>
-      typeof firstValue === "number"
-        ? []
-        : Array.from(column.getFacetedUniqueValues().keys()).sort(),
-    [column.getFacetedUniqueValues()]
-  );
+    const sortedUniqueValues = React.useMemo(
+      () =>
+        typeof firstValue === "number"
+          ? []
+          : Array.from(column.getFacetedUniqueValues().keys()).sort(),
+      [column.getFacetedUniqueValues()]
+    );
 
-  if (typeof firstValue === "number") return Text;
+    if (typeof firstValue === "number") return Text;
 
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          type="button"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between p-0 py-0 h-min mt-1"
-        >
-          {Text}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-fit p-0">
-        <MultipleSelectCommand
-          values={sortedUniqueValues}
-          selected={selected}
-          setSelected={setSelected}
-          column={column}
-        />
-      </PopoverContent>
-    </Popover>
-  );
-}
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            type="button"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between p-0 py-0 h-min mt-1"
+          >
+            {Text}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-fit p-0">
+          <MultipleSelectCommand
+            values={sortedUniqueValues}
+            selected={selected}
+            setSelected={setSelected}
+            column={column}
+          />
+        </PopoverContent>
+      </Popover>
+    );
+  }
+);
 
 export function GlobalFilterInput({
   debounce = 500,
