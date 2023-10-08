@@ -69,7 +69,6 @@ export async function getAttachments(supabase: SupabaseClient<Database>) {
     .select(
       `id, attachment_names (name, type), models (id, name), characteristics`
     )
-    .limit(3)
     .order("id")
     .throwOnError();
   return attachments;

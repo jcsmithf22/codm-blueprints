@@ -129,7 +129,8 @@ export default function AttachmentRows() {
 
   if (isPending) {
     return (
-      <LoadingRows columns={["Name", "Type", "Model", "Characteristics"]} />
+      // <LoadingRows columns={["Name", "Type", "Model", "Characteristics"]} />
+      <Loading />
     );
   }
 
