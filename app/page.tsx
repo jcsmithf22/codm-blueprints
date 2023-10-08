@@ -49,7 +49,6 @@ export default async function Index({
           )}
         </div>
       </nav>
-      <TestCommand />
     </div>
   );
 }
