@@ -31,7 +31,7 @@ export default function ServerComponent() {
                 "flex-shrink-0"
               )}
             >
-              Add attachment
+              Add model
             </Link>
           </div>
         </div>
