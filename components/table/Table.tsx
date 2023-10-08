@@ -14,9 +14,7 @@ import {
   getFacetedMinMaxValues,
   getFacetedUniqueValues,
   getFacetedRowModel,
-  Row,
 } from "@tanstack/react-table";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { classNames } from "@/utils/functions";
 import { rankItem } from "@tanstack/match-sorter-utils";
 import {
@@ -93,19 +91,8 @@ export function Table<T>({
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
   });
 
-  const { rows } = table.getRowModel();
-
-  const parentRef = React.useRef<HTMLDivElement>(null);
-
-  const virtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 53,
-    overscan: 10,
-  });
-
   return (
-    <div className="my-8 flow-root" ref={parentRef}>
+    <div className="my-8 flow-root">
       <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
           <div className="shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg bg-gray-50">
@@ -179,34 +166,26 @@ export function Table<T>({
                 ))}
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {virtualizer.getVirtualItems().map((virtualRow) => {
-                  const row = rows[virtualRow.index] as Row<T>;
-                  return (
-                    <tr
-                      key={row.id}
-                      ref={virtualizer.measureElement}
-                      data-index={virtualRow.index}
-                      className=""
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <td
-                          className={classNames(
-                            "whitespace-nowrap px-3 py-4 text-sm text-gray-500 h-10 first:rounded-bl-lg bg-white last:rounded-br-lg",
-                            columnClass[cell.column.id]
+                {table.getRowModel().rows.map((row) => (
+                  <tr key={row.id} className="">
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        className={classNames(
+                          "whitespace-nowrap px-3 py-4 text-sm text-gray-500 h-10 first:rounded-bl-lg bg-white last:rounded-br-lg",
+                          columnClass[cell.column.id]
+                        )}
+                        key={cell.id}
+                      >
+                        <div className="max-h-20 overflow-y-scroll ">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
                           )}
-                          key={cell.id}
-                        >
-                          <div className="max-h-20 overflow-y-scroll ">
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </div>
-                        </td>
-                      ))}
-                    </tr>
-                  );
-                })}
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
