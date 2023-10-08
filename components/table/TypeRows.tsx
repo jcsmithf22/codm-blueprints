@@ -8,8 +8,22 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getItems } from "@/utils/functions";
 import LoadingRows from "./LoadingRows";
+import { ColumnDef } from "@tanstack/react-table";
+import dynamic from "next/dynamic";
 
-import { Table } from "./Table";
+const Loading = () => {
+  return <LoadingRows columns={["Name", "Type"]} />;
+};
+
+const Table = dynamic(() => import("./Table").then((mod) => mod.Table), {
+  loading: Loading,
+}) as <T>({
+  data,
+  columns,
+}: {
+  data: T[];
+  columns: ColumnDef<T, any>[];
+}) => React.JSX.Element;
 
 import { createColumnHelper } from "@tanstack/react-table";
 
@@ -63,8 +77,7 @@ export default function TypeRows() {
 
   // refactor
   if (isPending) {
-    return <LoadingRows columns={["Name", "Type"]} />;
-    // return "Loading...";
+    return <Loading />;
   }
 
   if (!data) {

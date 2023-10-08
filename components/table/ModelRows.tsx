@@ -8,8 +8,22 @@ import { useQuery } from "@tanstack/react-query";
 import { getAttachments, getItems } from "@/utils/functions";
 import { Model, CombinedModelsAttachments } from "@/types/types";
 import LoadingRows from "./LoadingRows";
+import { ColumnDef } from "@tanstack/react-table";
+import dynamic from "next/dynamic";
 
-import { Table } from "./Table";
+const Loading = () => {
+  return <LoadingRows columns={["Name", "Type", "Attachments"]} />;
+};
+
+const Table = dynamic(() => import("./Table").then((mod) => mod.Table), {
+  loading: Loading,
+}) as <T>({
+  data,
+  columns,
+}: {
+  data: T[];
+  columns: ColumnDef<T, any>[];
+}) => React.JSX.Element;
 
 import { createColumnHelper } from "@tanstack/react-table";
 
@@ -75,7 +89,7 @@ export default function ModelRows() {
 
   if (isPendingAttachments || isPendingModels) {
     {
-      return <LoadingRows columns={["Name", "Type", "Attachments"]} />;
+      return <Loading />;
     }
   }
 

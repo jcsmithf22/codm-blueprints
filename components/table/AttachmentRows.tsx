@@ -1,7 +1,6 @@
 "use client";
 import React, { Suspense } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import dynamic from "next/dynamic";
 
 import { Database } from "@/types/supabase";
 import Link from "next/link";
@@ -10,6 +9,7 @@ import { getAttachments } from "@/utils/functions";
 import { JoinedAttachment } from "@/types/types";
 import LoadingRows from "./LoadingRows";
 import { ColumnDef } from "@tanstack/react-table";
+import dynamic from "next/dynamic";
 
 const Loading = () => {
   return <LoadingRows columns={["Name", "Type", "Model", "Characteristics"]} />;
@@ -128,10 +128,7 @@ export default function AttachmentRows() {
   });
 
   if (isPending) {
-    return (
-      // <LoadingRows columns={["Name", "Type", "Model", "Characteristics"]} />
-      <Loading />
-    );
+    return <Loading />;
   }
 
   if (!data) {
