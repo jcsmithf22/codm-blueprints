@@ -100,8 +100,8 @@ export function Table<T>({
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 34,
-    overscan: 20,
+    estimateSize: () => 53,
+    overscan: 10,
   });
 
   return (
@@ -179,12 +179,13 @@ export function Table<T>({
                 ))}
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {virtualizer.getVirtualItems().map((virtualRow, index) => {
+                {virtualizer.getVirtualItems().map((virtualRow) => {
                   const row = rows[virtualRow.index] as Row<T>;
                   return (
                     <tr
                       key={row.id}
                       ref={virtualizer.measureElement}
+                      data-index={virtualRow.index}
                       className=""
                     >
                       {row.getVisibleCells().map((cell) => (
