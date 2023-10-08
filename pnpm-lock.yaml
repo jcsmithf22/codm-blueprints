@@ -47,6 +47,9 @@ dependencies:
   '@tanstack/react-table':
     specifier: ^8.10.4
     version: 8.10.4(react-dom@18.2.0)(react@18.2.0)
+  '@tanstack/react-virtual':
+    specifier: 3.0.0-beta.65
+    version: 3.0.0-beta.65(react@18.2.0)
   autoprefixer:
     specifier: 10.4.15
     version: 10.4.15(postcss@8.4.29)
@@ -1301,9 +1304,22 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
+  /@tanstack/react-virtual@3.0.0-beta.65(react@18.2.0):
+    resolution: {integrity: sha512-Q21cUoE0C8Oyzy3RAMV+u4BuB+RwIf2/oQRCWksmIBp1PqLEtvXhAldh7v/wUt7WKEkislKDICZAvbYYs7EAyQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@tanstack/virtual-core': 3.0.0-beta.65
+      react: 18.2.0
+    dev: false
+
   /@tanstack/table-core@8.10.4:
     resolution: {integrity: sha512-1eJu8hY8U+bM/dkn+ldr/KtDqjcj3Wmn8u3n6rZsrb/wd88k8qmGTFcc+BA/fojGTqCRX1gKc8zMzuk2nauBEA==}
     engines: {node: '>=12'}
+    dev: false
+
+  /@tanstack/virtual-core@3.0.0-beta.65:
+    resolution: {integrity: sha512-ObP2pvXBdbivinr7BWDbGqYt4TK8wNzYsOWio+qBkDx5AJFuvqcdJxcCCYnv4dzVTe5ELA1MT4tkt8NB/tnEdA==}
     dev: false
 
   /@types/node@20.3.1:
