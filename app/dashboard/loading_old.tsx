@@ -28,9 +28,12 @@ const data: { [key: string]: Array<string | React.JSX.Element> } = {
   ],
 };
 
+const tablePaths = ["types", "models", "attachments"];
+
 const Loading = () => {
   const pathname = usePathname();
   const text = pathname.split("/").pop() || "";
+  if (!tablePaths.includes(text)) return null;
   const [title, plural, singular, Loading] = data[text];
 
   return (

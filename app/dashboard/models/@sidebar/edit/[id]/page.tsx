@@ -1,4 +1,4 @@
-import EditModel from "@/components/editor/EditModel";
+import ModelEditor from "@/components/editor/ModelEditor";
 import Sidebar from "@/components/Sidebar";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@/types/supabase";
@@ -24,7 +24,7 @@ export default async function Edit({ params }: { params: { id: string } }) {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Sidebar>
-        <EditModel modelId={params.id} />
+        <ModelEditor modelId={params.id} />
       </Sidebar>
     </HydrationBoundary>
   );

@@ -31,7 +31,7 @@ export default async function ServerLayout(props: {
 
   return (
     <Providers>
-      <div className="">
+      <div className="h-screen flex flex-row w-screen">
         {/*
         This example requires updating your template:
 
@@ -42,7 +42,7 @@ export default async function ServerLayout(props: {
       */}
 
         {/* Static sidebar for desktop */}
-        <div className="hidden md:fixed md:inset-y-0 md:z-10 md:flex md:w-72 md:flex-col">
+        <div className="hidden md:flex md:w-72 md:flex-col flex-shrink-0">
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="flex grow flex-col gap-y-5 overflow-y-auto px-6 bg-white ring-1 ring-black/5">
             <div className="flex h-16 shrink-0 items-center">
@@ -58,7 +58,7 @@ export default async function ServerLayout(props: {
           </div>
         </div>
 
-        <div className="md:pl-72 relative">{props.children}</div>
+        <div className="relative w-full overflow-scroll">{props.children}</div>
       </div>
     </Providers>
   );

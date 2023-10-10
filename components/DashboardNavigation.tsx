@@ -72,7 +72,8 @@ export default function DashboardNavigation() {
             >
               {/* <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute inset-0"> */}
               {/* <AnimatePresence> */}
-              {hoveredNavItem === name && (
+              {/* {hoveredNavItem === name && ( */}
+              {selected && (
                 <motion.div
                   layoutId={id}
                   className="bg-gray-100 absolute inset-0"

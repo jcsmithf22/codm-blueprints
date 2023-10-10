@@ -1,6 +1,5 @@
 import React from "react";
-import type { AttachmentName, Attachment, Model } from "@/types/types";
-import { classNames } from "@/utils/functions";
+import type { AttachmentName, Model } from "@/types/types";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -41,7 +40,7 @@ export const NameSelect = React.memo(
           className="block text-sm font-medium leading-6 text-gray-900"
           htmlFor={`${id}-name`}
         >
-          Name
+          Type
         </label>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -54,7 +53,7 @@ export const NameSelect = React.memo(
               aria-expanded={open}
               className="w-full justify-between mt-2"
             >
-              {value ? value : "Select Name..."}
+              {value ? value : "Select Type..."}
               <ChevronUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
@@ -75,7 +74,11 @@ export const NameSelect = React.memo(
                     key={item.id}
                     value={item.name}
                     onSelect={(currentValue) => {
-                      setName(currentValue === value ? "" : currentValue);
+                      setName(
+                        currentValue === value?.toLowerCase()
+                          ? ""
+                          : currentValue
+                      );
                       setOpen(false);
                     }}
                   >
@@ -132,7 +135,7 @@ export const ModelSelect = React.memo(
               aria-expanded={open}
               className="w-full justify-between mt-2"
             >
-              {value ? value : "Select Name..."}
+              {value ? value : "Select Model..."}
               <ChevronUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
@@ -151,7 +154,11 @@ export const ModelSelect = React.memo(
                     key={item.id}
                     value={item.name}
                     onSelect={(currentValue) => {
-                      setModel(currentValue === value ? "" : currentValue);
+                      setModel(
+                        currentValue === value?.toLowerCase()
+                          ? ""
+                          : currentValue
+                      );
                       setOpen(false);
                     }}
                   >

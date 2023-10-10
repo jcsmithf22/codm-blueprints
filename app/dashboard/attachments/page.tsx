@@ -35,7 +35,7 @@ export default function AttachmentsPage() {
           </div>
         </div>
       </div>
-      <div className="bg-gray-100 pt-8 h-screen overflow-y-scroll">
+      <div className="bg-gray-100 pt-8">
         <div className="px-4 sm:px-6 lg:px-8 lg:pt-14 pt-32">
           <AttachmentRows />
         </div>

@@ -19,6 +19,76 @@ import { Button } from "@/components/ui/button";
 import { flushSync } from "react-dom";
 import { cn } from "@/lib/utils";
 
+type Action =
+  | {
+      type: "UpdateModel" | "UpdateType";
+      value: number;
+    }
+  | {
+      type: "UpdatePros" | "UpdateCons";
+      value: string;
+      index: number;
+    }
+  | {
+      type: "AddPro" | "AddCon";
+    }
+  | {
+      type: "RemovePro" | "RemoveCon";
+      index: number;
+    }
+  | {
+      type: "Reset";
+      value: Attachment;
+    };
+
+const reducer = (state: Attachment, action: Action) => {
+  return produce(state, (draft) => {
+    switch (action.type) {
+      case "UpdateModel": {
+        draft.model = action.value;
+        break;
+      }
+      case "UpdateType": {
+        draft.type = action.value;
+        break;
+      }
+      case "UpdatePros": {
+        draft.characteristics.pros[action.index] = action.value;
+        break;
+      }
+      case "UpdateCons": {
+        draft.characteristics.cons[action.index] = action.value;
+        break;
+      }
+      case "AddPro": {
+        draft.characteristics.pros.push("");
+        break;
+      }
+      case "AddCon": {
+        draft.characteristics.cons.push("");
+        break;
+      }
+      case "RemovePro": {
+        draft.characteristics.pros.splice(action.index, 1);
+        break;
+      }
+      case "RemoveCon": {
+        draft.characteristics.cons.splice(action.index, 1);
+        break;
+      }
+      case "Reset": {
+        return action.value;
+      }
+    }
+  });
+};
+
+type Error = {
+  type?: string;
+  model?: string;
+  server?: string;
+};
+
 export default function AttachmentEditor({
   attachmentId,
 }: {
@@ -38,7 +108,9 @@ export default function AttachmentEditor({
     queryKey: ["types"],
     queryFn: () => getItems<AttachmentName>(supabase, "attachment_names"),
   });
-  const [formData, setFormData] = React.useState<Attachment>(
+  // const [formData, setFormData] = React.useState<Attachment>(
+  const [formData, dispatch] = React.useReducer(
+    reducer,
     attachment || {
       type: -1,
       model: -1,
@@ -48,6 +120,9 @@ export default function AttachmentEditor({
       },
     }
   );
+
+  const [error, setError] = React.useState<Error | null>(null);
+
   const id = React.useId();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -63,7 +138,7 @@ export default function AttachmentEditor({
   // updates formData when the attachment is loaded
   React.useEffect(() => {
     if (!attachment) return;
-    setFormData(attachment);
+    dispatch({ type: "Reset", value: attachment });
   }, [attachment]);
 
   const updateMutation = useMutation({
@@ -112,6 +187,17 @@ export default function AttachmentEditor({
   });
 
   const handleSubmit = async () => {
+    const submitErrors: Error = {};
+    if (formData.type === -1) {
+      submitErrors.type = "Please select a type";
+    }
+    if (formData.model === -1) {
+      submitErrors.model = "Please select a model";
+    }
+    if (Object.keys(submitErrors).length > 0) {
+      setError(submitErrors);
+      return;
+    }
     const filteredState = produce(formData, (draft) => {
       draft.characteristics.pros = draft.characteristics.pros.filter(
         (pro) => pro !== ""
@@ -152,20 +238,25 @@ export default function AttachmentEditor({
   );
 
   const setName = React.useCallback((name: string) => {
-    // find amore efficient way to do this
     const attachmentId = attachmentNameIndex?.[name.toLowerCase()]?.id || -1;
-    setFormData((formData) => ({
-      ...formData,
-      type: attachmentId,
-    }));
+    setError((error) => {
+      if (error?.type) {
+        return { ...error, type: undefined };
+      }
+      return error;
+    });
+    dispatch({ type: "UpdateType", value: attachmentId });
   }, []);
 
   const setModel = React.useCallback((model: string) => {
     const modelId = modelNameIndex?.[model.toLowerCase()]?.id || -1;
-    setFormData((formData) => ({
-      ...formData,
-      model: modelId,
-    }));
+    setError((error) => {
+      if (error?.model) {
+        return { ...error, model: undefined };
+      }
+      return error;
+    });
+    dispatch({ type: "UpdateModel", value: modelId });
   }, []);
 
   return (
@@ -177,17 +268,27 @@ export default function AttachmentEditor({
         Edit an existing attachment from the database.
       </p>
       <div className="mt-10 flex flex-col gap-y-6">
-        <ModelSelect
-          model={formData.model}
-          models={models}
-          setModel={setModel}
-        />
+        <div>
+          <ModelSelect
+            model={formData.model}
+            models={models}
+            setModel={setModel}
+          />
 
-        <NameSelect
-          attachment_names={attachment_names}
-          setName={setName}
-          name={formData.type}
-        />
+          {error?.model && (
+            <p className="text-sm text-red-500">{error.model}</p>
+          )}
+        </div>
+
+        <div>
+          <NameSelect
+            attachment_names={attachment_names}
+            setName={setName}
+            name={formData.type}
+          />
+
+          {error?.type && <p className="text-sm text-red-500">{error.type}</p>}
+        </div>
 
         <div className="">
           <label
@@ -205,25 +306,19 @@ export default function AttachmentEditor({
                   id={`${id}-pro-${i}`}
                   name={`pro-${i}`}
                   value={pro}
-                  onChange={(e) => {
-                    setFormData(
-                      produce(formData, (draft) => {
-                        draft.characteristics.pros[i] = e.target.value;
-                      })
-                    );
-                  }}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "UpdatePros",
+                      value: e.target.value,
+                      index: i,
+                    })
+                  }
                 />
                 <Button
                   className="px-2"
                   variant="outline"
                   type="button"
-                  onClick={() => {
-                    setFormData(
-                      produce(formData, (draft) => {
-                        draft.characteristics.pros.splice(i, 1);
-                      })
-                    );
-                  }}
+                  onClick={() => dispatch({ type: "RemovePro", index: i })}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -248,13 +343,8 @@ export default function AttachmentEditor({
             variant="outline"
             type="button"
             onClick={() => {
-              if (!formData) return;
               flushSync(() => {
-                setFormData(
-                  produce(formData, (draft) => {
-                    draft.characteristics.pros.push("");
-                  })
-                );
+                dispatch({ type: "AddPro" });
               });
               currentProInput.current?.focus();
             }}
@@ -279,25 +369,19 @@ export default function AttachmentEditor({
                   id={`${id}-con-${i}`}
                   name={`con-${i}`}
                   value={con}
-                  onChange={(e) => {
-                    setFormData(
-                      produce(formData, (draft) => {
-                        draft.characteristics.cons[i] = e.target.value;
-                      })
-                    );
-                  }}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "UpdateCons",
+                      value: e.target.value,
+                      index: i,
+                    })
+                  }
                 />
                 <Button
                   className="px-2"
                   variant="outline"
                   type="button"
-                  onClick={() => {
-                    setFormData(
-                      produce(formData, (draft) => {
-                        draft.characteristics.cons.splice(i, 1);
-                      })
-                    );
-                  }}
+                  onClick={() => dispatch({ type: "RemoveCon", index: i })}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -323,11 +407,7 @@ export default function AttachmentEditor({
             onClick={() => {
               if (!formData) return;
               flushSync(() => {
-                setFormData(
-                  produce(formData, (draft) => {
-                    draft.characteristics.cons.push("");
-                  })
-                );
+                dispatch({ type: "AddCon" });
               });
               currentConInput.current?.focus();
             }}
