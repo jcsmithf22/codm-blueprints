@@ -1,6 +1,5 @@
 import { Database } from "@/types/supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { cache } from "react";
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
